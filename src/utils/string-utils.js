@@ -1,7 +1,7 @@
 var RegExpTrim     = /^\s+|\s+$/g,
     RegExpTrimLeft = /^\s+/,
     RegExpWSChars  = /(\r\n|\n|\r|\t|\u00A0)/gm,
-    RegExpMultiWS  = / +/g;
+    RegExpMultiWS  = /\s+/g;
 
 /**
  * String.prototype.trim polyfill

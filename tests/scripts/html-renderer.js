@@ -49,7 +49,6 @@ test('render with attributes', function() {
   var nodes = div.childNodes;
 
   equal( nodes[0].className, 'test' );
-  equal( nodes[0].firstChild.attributes.length, 2 );
   equal( nodes[0].firstChild.attributes.href.value, 'http://google.com/' );
   equal( nodes[0].firstChild.attributes.rel.value, 'publisher' );
 });
@@ -63,7 +62,7 @@ test('render elements', function() {
 });
 
 test('render self-closing elements', function() {
-  var input = '<img src="test1.png"/><img src="test2.png"/>';
+  var input = '<img src="http://domain.com/test1.png"/><img src="http://domain.com/test2.png"/>';
   var parsed = compiler.parse(input);
   var rendered = compiler.render(parsed);
 

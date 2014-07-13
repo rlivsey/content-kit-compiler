@@ -104,16 +104,16 @@ test('markup: superscript', function() {
 });
 
 test('markup: list items', function() {
-  var parsed = compiler.parse('<ul><li>Item 1</li> <li>Item 2</li></ul>');
+  var parsed = compiler.parse('<ul><li>Item 1</li><li>Item 2</li></ul>');
   equal ( parsed.length, 1 );
-  equal ( parsed[0].value, 'Item 1 Item 2' );
+  equal ( parsed[0].value, 'Item 1Item 2' );
   equal ( parsed[0].markup.length, 2 );
   equal ( parsed[0].markup[0].type, compiler.markupTypes.LIST_ITEM.id );
   equal ( parsed[0].markup[0].start, 0 );
   equal ( parsed[0].markup[0].end, 6 );
   equal ( parsed[0].markup[1].type, compiler.markupTypes.LIST_ITEM.id );
-  equal ( parsed[0].markup[1].start, 7 );
-  equal ( parsed[0].markup[1].end, 13 );
+  equal ( parsed[0].markup[1].start, 6 );
+  equal ( parsed[0].markup[1].end, 12 );
 });
 
 test('markup: nested tags', function() {
@@ -208,7 +208,7 @@ test('markup: self-closing tags with nesting', function() {
 test('markup: whitespace', function() {
   var parsed = compiler.parse('<ul>   ' +
                               '\t <li>Item <i>1</i></li> &nbsp;\n' +
-                              '   <li><b>Item 2</b></li>\r\n ' +
+                              '   <li><b>Item 2</b></li>\r\n &nbsp; ' +
                               '\t\t<li><b>Item</b> 3</li>\r' +
                               '</ul>');
   equal ( parsed.length, 1 );
@@ -239,7 +239,7 @@ test('markup: whitespace', function() {
 test('attributes', function() {
   var parsed = compiler.parse('<p class="test"><a href="http://google.com/" rel="nofollow">Link to google.com</a></p>');
 
-  equal ( parsed[0].attributes.class, 'test' );
+  equal ( parsed[0].attributes['class'], 'test' );
   equal ( parsed[0].markup[0].attributes.href, 'http://google.com/' );
   equal ( parsed[0].markup[0].attributes.rel,  'nofollow' );
 });
@@ -266,11 +266,11 @@ test('blocks: subheading', function() {
 });
 
 test('blocks: image', function() {
-  var parsed = compiler.parse('<img src="test.png"/>');
+  var parsed = compiler.parse('<img src="http://domain.com/test.png"/>');
   
   equal ( parsed.length, 1 );
   equal ( parsed[0].type, compiler.blockTypes.IMAGE.id );
-  equal ( parsed[0].attributes.src, 'test.png' );
+  equal ( parsed[0].attributes.src, 'http://domain.com/test.png' );
 });
 
 test('blocks: quote', function() {
@@ -308,10 +308,10 @@ test('blocks: mixed', function() {
 });
 
 test('blocks: self-closing', function() {
-  var input = '<img src="test.png"/><p>Line<br/>break</p>';
+  var input = '<img src="http://domain.com/test.png"/><p>Line<br/>break</p>';
   var parsed = compiler.parse(input);
   
   equal ( parsed.length, 2 );
   equal ( parsed[0].type, compiler.blockTypes.IMAGE.id );
-  equal ( parsed[0].attributes.src, 'test.png' );
+  equal ( parsed[0].attributes.src, 'http://domain.com/test.png' );
 });

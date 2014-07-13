@@ -35,7 +35,7 @@ HTMLParser.prototype.parse = function(html) {
         handleNonBlockElementAtRoot(currentNode, blocks);
       }
     } else if (currentNode.nodeType === 3) {
-      text = textOfNode(currentNode);
+      text = currentNode.nodeValue;
       if (trim(text)) {
         block = getLastBlockOrCreate(blocks);
         block.value += text;
