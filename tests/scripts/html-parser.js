@@ -117,17 +117,17 @@ test('markup: list items', function() {
 });
 
 test('markup: nested tags', function() {
-  var parsed = compiler.parse('<p><b><i>Double.</i></b> <b><i>Double staggered</i> start.</b> <b>Double <i>staggered end.</i></b> <b>Double <i>staggered</i> middle.</b></p>');
+  var parsed = compiler.parse('<p><i><b>Double.</b></i> <b><i>Double staggered</i> start.</b> <b>Double <i>staggered end.</i></b> <b>Double <i>staggered</i> middle.</b></p>');
 
   equal ( parsed.length, 1 );
   equal ( parsed[0].value, 'Double. Double staggered start. Double staggered end. Double staggered middle.' );
   equal ( parsed[0].markup.length, 8 );
 
-  equal ( parsed[0].markup[0].type, compiler.markupTypes.BOLD.id );
+  equal ( parsed[0].markup[0].type, compiler.markupTypes.ITALIC.id );
   equal ( parsed[0].markup[0].start, 0 );
   equal ( parsed[0].markup[0].end, 7 );
 
-  equal ( parsed[0].markup[1].type, compiler.markupTypes.ITALIC.id );
+  equal ( parsed[0].markup[1].type, compiler.markupTypes.BOLD.id );
   equal ( parsed[0].markup[1].start, 0 );
   equal ( parsed[0].markup[1].end, 7 );
 
@@ -234,6 +234,13 @@ test('markup: whitespace', function() {
   equal ( markup[5].type, compiler.markupTypes.BOLD.id );
   equal ( markup[5].start, 14 );
   equal ( markup[5].end, 18 );
+});
+
+test('markup: consistent order', function() {
+  var correctlyOrdered = compiler.parse('<p><a><b>text</b></a></p>');
+  var incorrectlyOrdered = compiler.parse('<p><b><a>text</a></b></p>');
+
+  equal( compiler.render(correctlyOrdered),  compiler.render(incorrectlyOrdered) );
 });
 
 test('attributes', function() {

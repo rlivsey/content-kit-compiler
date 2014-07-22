@@ -54,7 +54,7 @@ test('render with attributes', function() {
 });
 
 test('render elements', function() {
-  var input = '<h2>The Title</h2><h3>The Subtitle</h3><p>Paragraph <b>1</b></p><p>Paragraph <b><i>2</i></b></p><p>Paragraph with a <a href="http://google.com/">link</a>.</p><blockquote>Quote</blockquote>';
+  var input = '<h2>The Title</h2><h3>The Subtitle</h3><p>Paragraph <b>1</b></p><p>Paragraph <i><b>2</b></i></p><p>Paragraph with a <a href="http://google.com/">link</a>.</p><blockquote>Quote</blockquote>';
   var parsed = compiler.parse(input);
   var rendered = compiler.render(parsed);
   
