@@ -15,6 +15,8 @@ var src = [
   './src/index.js',
   './src/types/type.js',
   './src/types/*.js',
+  './src/models/model.js',
+  './src/models/*.js',
   './src/utils/*.js',
   './src/compiler.js',
   './src/parsers/*.js',

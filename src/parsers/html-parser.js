@@ -53,19 +53,15 @@ ContentKit.HTMLParser = HTMLParser;
  * Parses a single block type node into json
  */
 function parseBlock(node, includeTypeNames) {
-  var meta = BlockType.findByNode(node), parsed, attributes;
+  var meta = BlockType.findByNode(node);
   if (meta) {
-    parsed = { type : meta.id };
-    if (includeTypeNames && meta.name) {
-      parsed.type_name = meta.name;
-    }
-    parsed.value = trim(textOfNode(node));
-    attributes = attributesForNode(node);
-    if (attributes) {
-      parsed.attributes = attributes;
-    }
-    parsed.markup = parseBlockMarkup(node, includeTypeNames);
-    return parsed;
+    return new BlockModel({
+      type       : meta.id,
+      type_name  : includeTypeNames && meta.name,
+      value      : trim(textOfNode(node)),
+      attributes : attributesForNode(node),
+      markup     : parseBlockMarkup(node, includeTypeNames)
+    });
   }
 }
 
@@ -100,7 +96,7 @@ function parseBlockMarkup(node, includeTypeNames) {
     index++;
   }
 
-  return sortMarkups(markups);
+  return markups;
 }
 
 /**
@@ -108,7 +104,7 @@ function parseBlockMarkup(node, includeTypeNames) {
  */
 function parseElementMarkup(node, startIndex, includeTypeNames) {
   var meta = MarkupType.findByNode(node),
-      selfClosing, endIndex, markup, attributes;
+      selfClosing, endIndex;
 
   if (meta) {
     selfClosing = meta.selfClosing;
@@ -116,34 +112,15 @@ function parseElementMarkup(node, startIndex, includeTypeNames) {
 
     endIndex = startIndex + (selfClosing ? 0 : textOfNode(node).length);
     if (endIndex > startIndex || (selfClosing && endIndex === startIndex)) { // check for empty nodes
-      markup = { type : meta.id };
-      if (includeTypeNames && meta.name) {
-        markup.type_name = meta.name;
-      }
-      markup.start = startIndex;
-      markup.end = endIndex;
-      attributes = attributesForNode(node);
-      if (attributes) {
-        markup.attributes = attributes;
-      }
-      return markup;
+      return new MarkupModel({
+        type       : meta.id,
+        type_name  : includeTypeNames && meta.name,
+        start      : startIndex,
+        end        : endIndex,
+        attributes : attributesForNode(node)
+      });
     }
   }
-}
-
-/**
- * Ensures markups at the same index are always in a specific order.
- * For example, so all bold links are consistently marked up 
- * as <a><b>text</b></a> instead of <b><a>text</a></b>
- */
-function sortMarkups(markups) {
-  var sorted = markups.sort(function(a, b) {
-    if (a.start === b.start && a.end === b.end) {
-      return b.type - a.type;
-    }
-    return 0;
-  });
-  return sorted;
 }
 
 /**
@@ -153,7 +130,6 @@ function handleNonBlockElementAtRoot(elementNode, blocks) {
   var block = getLastBlockOrCreate(blocks),
       markup = parseElementMarkup(elementNode, block.value.length);
   if (markup) {
-    block.markup = block.markup || [];
     block.markup.push(markup);
   }
   block.value += textOfNode(elementNode);
@@ -167,7 +143,7 @@ function getLastBlockOrCreate(blocks) {
   if (blocks.length) {
     block = blocks[blocks.length - 1];
   } else {
-    block = parseBlock(doc.createElement('p'));
+    block = parseBlock(doc.createElement(DefaultBlockTypes.TEXT.tag));
     blocks.push(block);
   }
   return block;
