@@ -8,7 +8,7 @@ var RegExpTrim     = /^\s+|\s+$/g,
  * Removes whitespace at beginning and end of string
  */
 function trim(string) {
-  return string ? string.replace(RegExpTrim, '') : '';
+  return string ? (string + '').replace(RegExpTrim, '') : '';
 }
 
 /**
@@ -16,14 +16,14 @@ function trim(string) {
  * Removes whitespace at beginning of string
  */
 function trimLeft(string) {
-  return string ? string.replace(RegExpTrimLeft, '') : '';
+  return string ? (string + '').replace(RegExpTrimLeft, '') : '';
 }
 
 /**
  * Cleans line breaks, tabs, non-breaking spaces, then multiple occuring whitespaces.
  */
 function sanitizeWhitespace(string) {
-  return string.replace(RegExpWSChars, '').replace(RegExpMultiWS, ' ');
+  return string ? (string + '').replace(RegExpWSChars, '').replace(RegExpMultiWS, ' ') : '';
 }
 
 /**

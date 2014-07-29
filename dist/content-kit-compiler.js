@@ -3,7 +3,7 @@
  * @version  0.1.0
  * @author   Garth Poitras <garth22@gmail.com> (http://garthpoitras.com/)
  * @license  MIT
- * Last modified: Jul 22, 2014
+ * Last modified: Jul 29, 2014
  */
 
 (function(exports, document, undefined) {
@@ -228,7 +228,7 @@ var RegExpTrim     = /^\s+|\s+$/g,
  * Removes whitespace at beginning and end of string
  */
 function trim(string) {
-  return string ? string.replace(RegExpTrim, '') : '';
+  return string ? (string + '').replace(RegExpTrim, '') : '';
 }
 
 /**
@@ -236,14 +236,14 @@ function trim(string) {
  * Removes whitespace at beginning of string
  */
 function trimLeft(string) {
-  return string ? string.replace(RegExpTrimLeft, '') : '';
+  return string ? (string + '').replace(RegExpTrimLeft, '') : '';
 }
 
 /**
  * Cleans line breaks, tabs, non-breaking spaces, then multiple occuring whitespaces.
  */
 function sanitizeWhitespace(string) {
-  return string.replace(RegExpWSChars, '').replace(RegExpMultiWS, ' ');
+  return string ? (string + '').replace(RegExpWSChars, '').replace(RegExpMultiWS, ' ') : '';
 }
 
 /**

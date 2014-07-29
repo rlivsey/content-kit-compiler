@@ -2,6 +2,17 @@ module('html-parser');
 
 var compiler = new ContentKit.Compiler();
 
+test('propertly handle empty content', function() {
+  var parsed = compiler.parse();
+  deepEqual (parsed, []);
+
+  parsed = compiler.parse('');
+  deepEqual (parsed, []);
+
+  parsed = compiler.parse(' ');
+  deepEqual (parsed, []);
+});
+
 test('stray markup without a block should create a default block', function() {
   var parsed = compiler.parse('<b>text</b>');
 
