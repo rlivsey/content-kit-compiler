@@ -4,6 +4,8 @@
  */
 function HTMLParser(options) {
   var defaults = {
+    blockTypes       : DefaultBlockTypeSet,
+    markupTypes      : DefaultMarkupTypeSet,
     includeTypeNames : false
   };
   merge(this, defaults, options);
@@ -28,16 +30,16 @@ HTMLParser.prototype.parse = function(html) {
     // We'll handle some cases if it isn't so we don't lose any content when parsing.
     // Parser assumes sane input (such as from the ContentKit Editor) and is not intended to be a full html sanitizer.
     if (currentNode.nodeType === 1) {
-      block = parseBlock(currentNode, this.includeTypeNames);
+      block = this.parseBlock(currentNode);
       if (block) {
         blocks.push(block);
       } else {
-        handleNonBlockElementAtRoot(currentNode, blocks);
+        handleNonBlockElementAtRoot(this, currentNode, blocks);
       }
     } else if (currentNode.nodeType === 3) {
       text = currentNode.nodeValue;
       if (trim(text)) {
-        block = getLastBlockOrCreate(blocks);
+        block = getLastBlockOrCreate(this, blocks);
         block.value += text;
       }
     }
@@ -46,29 +48,32 @@ HTMLParser.prototype.parse = function(html) {
   return blocks;
 };
 
-ContentKit.HTMLParser = HTMLParser;
-
-
 /**
- * Parses a single block type node into json
+ * @method parseBlock
+ * @param node DOM node to parse
+ * @return {BlockModel} parsed block model
+ * Parses a single block type node into a model
  */
-function parseBlock(node, includeTypeNames) {
-  var meta = BlockType.findByNode(node);
-  if (meta) {
+HTMLParser.prototype.parseBlock = function(node) {
+  var type = this.blockTypes.findByNode(node);
+  if (type) {
     return new BlockModel({
-      type       : meta.id,
-      type_name  : includeTypeNames && meta.name,
+      type       : type.id,
+      type_name  : this.includeTypeNames && type.name,
       value      : trim(textOfNode(node)),
       attributes : attributesForNode(node),
-      markup     : parseBlockMarkup(node, includeTypeNames)
+      markup     : this.parseBlockMarkup(node)
     });
   }
-}
+};
 
 /**
- * Parses all of the markup in a block type node
+ * @method parseBlockMarkup
+ * @param node DOM node to parse
+ * @return {Array} parsed markups
+ * Parses a single block type node's markup
  */
-function parseBlockMarkup(node, includeTypeNames) {
+HTMLParser.prototype.parseBlockMarkup = function(node) {
   var processedText = '',
       markups = [],
       index = 0,
@@ -77,7 +82,7 @@ function parseBlockMarkup(node, includeTypeNames) {
   while (node.hasChildNodes()) {
     currentNode = node.firstChild;
     if (currentNode.nodeType === 1) {
-      markup = parseElementMarkup(currentNode, processedText.length, includeTypeNames);
+      markup = this.parseElementMarkup(currentNode, processedText.length);
       if (markup) {
         markups.push(markup);
       }
@@ -97,38 +102,45 @@ function parseBlockMarkup(node, includeTypeNames) {
   }
 
   return markups;
-}
+};
 
 /**
+ * @method parseElementMarkup
+ * @param node DOM node to parse
+ * @param startIndex DOM node to parse
+ * @return {MarkupModel} parsed markup model
  * Parses markup of a single html element node
  */
-function parseElementMarkup(node, startIndex, includeTypeNames) {
-  var meta = MarkupType.findByNode(node),
+HTMLParser.prototype.parseElementMarkup = function(node, startIndex) {
+  var type = this.markupTypes.findByNode(node),
       selfClosing, endIndex;
 
-  if (meta) {
-    selfClosing = meta.selfClosing;
+  if (type) {
+    selfClosing = type.selfClosing;
     if (!selfClosing && !node.hasChildNodes()) { return; } // check for empty nodes
 
     endIndex = startIndex + (selfClosing ? 0 : textOfNode(node).length);
     if (endIndex > startIndex || (selfClosing && endIndex === startIndex)) { // check for empty nodes
       return new MarkupModel({
-        type       : meta.id,
-        type_name  : includeTypeNames && meta.name,
+        type       : type.id,
+        type_name  : this.includeTypeNames && type.name,
         start      : startIndex,
         end        : endIndex,
         attributes : attributesForNode(node)
       });
     }
   }
-}
+};
+
+ContentKit.HTMLParser = HTMLParser;
+
 
 /**
  * Helper to retain stray elements at the root of the html that aren't blocks
  */
-function handleNonBlockElementAtRoot(elementNode, blocks) {
-  var block = getLastBlockOrCreate(blocks),
-      markup = parseElementMarkup(elementNode, block.value.length);
+function handleNonBlockElementAtRoot(parser, elementNode, blocks) {
+  var block = getLastBlockOrCreate(parser, blocks),
+      markup = parser.parseElementMarkup(elementNode, block.value.length);
   if (markup) {
     block.markup.push(markup);
   }
@@ -138,12 +150,12 @@ function handleNonBlockElementAtRoot(elementNode, blocks) {
 /**
  * Gets the last block in the set or creates and return a default block if none exist yet.
  */
-function getLastBlockOrCreate(blocks) {
+function getLastBlockOrCreate(parser, blocks) {
   var block;
   if (blocks.length) {
     block = blocks[blocks.length - 1];
   } else {
-    block = parseBlock(doc.createElement(DefaultBlockTypes.TEXT.tag));
+    block = parser.parseBlock(doc.createElement(DefaultBlockTypeSet.TEXT.tag));
     blocks.push(block);
   }
   return block;

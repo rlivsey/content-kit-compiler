@@ -3,7 +3,7 @@
  * @version  0.1.0
  * @author   Garth Poitras <garth22@gmail.com> (http://garthpoitras.com/)
  * @license  MIT
- * Last modified: Jul 29, 2014
+ * Last modified: Aug 1, 2014
  */
 
 (function(exports, document, undefined) {
@@ -18,99 +18,105 @@ exports.ContentKit = ContentKit;
 
 /**
  * @class Type
- * @private
  * @constructor
- * Base class that contains info about an allowed node type (type id, tag, etc).
- * Only to be subclassed (BlockType, MarkupType)
+ * Contains meta info about a node type (id, name, tag, etc).
  */
-function Type(options, meta) {
+function Type(options) {
   if (options) {
-    this.id = options.id === undefined ? meta.autoId++ : options.id;
-    meta.idLookup[this.id] = this;
-    this.name = options.name || options.tag;
+    this.name = underscore(options.name || options.tag).toUpperCase();
+    if (options.id !== undefined) {
+      this.id = options.id;
+    }
     if (options.tag) {
-      this.tag = options.tag;
+      this.tag = options.tag.toLowerCase();
       this.selfClosing = /^(br|img|hr|meta|link|embed)$/i.test(this.tag);
-      meta.tagLookup[this.tag] = this;
     }
   }
 }
 
-/**
- * Type static meta properties
- */
-function TypeMeta() {
-  this.autoId    = 1;  // Auto-increment id counter
-  this.idLookup  = {}; // Hash cache for finding by id
-  this.tagLookup = {}; // Hash cache for finding by tag
-}
+ContentKit.Type = Type;
 
 /**
- * Returns type info for a given Node
- */
-Type.findByNode = function(node) {
-  return this.meta.tagLookup[node.tagName.toLowerCase()];
-};
-
-/**
- * Returns type info for a given id
- */
-Type.findById = function(id) {
-  return this.meta.idLookup[id];
-};
-
-/**
- * @class BlockType
+ * @class TypeSet
  * @private
  * @constructor
- * @extends Type
  */
-function BlockType(options) {
-  Type.call(this, options, BlockType.meta);
-}
-BlockType.meta = new TypeMeta();
-inherit(BlockType, Type);
+function TypeSet(types) {
+  var len = types && types.length, i;
 
-/**
- * Default supported block node type dictionary
- */
-var DefaultBlockTypes = {
-  TEXT         : new BlockType({ tag: 'p', name: 'text' }),
-  HEADING      : new BlockType({ tag: 'h2', name: 'heading' }),
-  SUBHEADING   : new BlockType({ tag: 'h3', name: 'subheading' }),
-  IMAGE        : new BlockType({ tag: 'img', name: 'image' }),
-  QUOTE        : new BlockType({ tag: 'blockquote', name: 'quote' }),
-  LIST         : new BlockType({ tag: 'ul', name: 'list' }),
-  ORDERED_LIST : new BlockType({ tag: 'ol', name: 'ordered list' }),
-  EMBED        : new BlockType({ name: 'embed' }),
-  GROUP        : new BlockType({ name: 'group' })
+  this._autoId    = 1;  // Auto-increment id counter
+  this.idLookup   = {}; // Hash cache for finding by id
+  this.tagLookup  = {}; // Hash cache for finding by tag
+
+  for (i = 0; i < len; i++) {
+    this.addType(types[i]);
+  }
+}
+
+TypeSet.prototype = {
+  /**
+   * Adds a type to the set
+   */
+  addType: function(type) {
+    this[type.name] = type;
+    if (type.id === undefined) {
+      type.id = this._autoId++;
+    }
+    this.idLookup[type.id] = type;
+    if (type.tag) {
+      this.tagLookup[type.tag] = type;
+    }
+    return type;
+  },
+
+  /**
+   * Returns type info for a given Node
+   */
+  findByNode: function(node) {
+    return this.findByTag(node.tagName);
+  },
+  /**
+   * Returns type info for a given tag
+   */
+  findByTag: function(tag) {
+    return this.tagLookup[tag.toLowerCase()];
+  },
+  /**
+   * Returns type info for a given id
+   */
+  findById: function(id) {
+    return this.idLookup[id];
+  }
 };
 
 /**
- * @class MarkupType
- * @private
- * @constructor
- * @extends Type
+ * Default supported block types
  */
-function MarkupType(options) {
-  Type.call(this, options, MarkupType.meta);
-}
-MarkupType.meta = new TypeMeta();
-inherit(MarkupType, Type);
+var DefaultBlockTypeSet = new TypeSet([
+  new Type({ tag: 'p', name: 'text' }),
+  new Type({ tag: 'h2', name: 'heading' }),
+  new Type({ tag: 'h3', name: 'subheading' }),
+  new Type({ tag: 'img', name: 'image' }),
+  new Type({ tag: 'blockquote', name: 'quote' }),
+  new Type({ tag: 'ul', name: 'list' }),
+  new Type({ tag: 'ol', name: 'ordered list' }),
+  new Type({ name: 'embed' }),
+  new Type({ name: 'group' })
+]);
 
 /**
- * Default supported markup type dictionary
+ * Default supported markup types
  */
-var DefaultMarkupTypes = {
-  BOLD        : new MarkupType({ tag: 'b', name: 'bold' }),
-  ITALIC      : new MarkupType({ tag: 'i', name: 'italic' }),
-  UNDERLINE   : new MarkupType({ tag: 'u', name: 'underline' }),
-  LINK        : new MarkupType({ tag: 'a', name: 'link' }),
-  BREAK       : new MarkupType({ tag: 'br', name: 'break' }),
-  LIST_ITEM   : new MarkupType({ tag: 'li', name: 'list item' }),
-  SUBSCRIPT   : new MarkupType({ tag: 'sub', name: 'subscript' }),
-  SUPERSCRIPT : new MarkupType({ tag: 'sup', name: 'superscript' })
-};
+var DefaultMarkupTypeSet = new TypeSet([
+  new Type({ tag: 'b', name: 'bold' }),
+  new Type({ tag: 'i', name: 'italic' }),
+  new Type({ tag: 'u', name: 'underline' }),
+  new Type({ tag: 'a', name: 'link' }),
+  new Type({ tag: 'br', name: 'break' }),
+  new Type({ tag: 'li', name: 'list item' }),
+  new Type({ tag: 'sub', name: 'subscript' }),
+  new Type({ tag: 'sup', name: 'superscript' })
+]);
 
 /**
  * @class Model
@@ -159,6 +165,21 @@ function sortBlockMarkups(markups) {
 }
 
 ContentKit.BlockModel = BlockModel;
+
+/**
+ * @class TextModel
+ * @constructor
+ * @extends BlockModel
+ */
+function TextModel(options) {
+  options = options || {};
+  options.type = DefaultBlockTypeSet.TEXT.id;
+  options.type_name = DefaultBlockTypeSet.TEXT.name;
+  BlockModel.call(this, options);
+}
+inherit(TextModel, BlockModel);
+
+ContentKit.TextModel = TextModel;
 
 /**
  * @class MarkupModel
@@ -281,10 +302,10 @@ function inherit(Sub, Super) {
   Sub.constructor = Sub;
 }
 
-var RegExpTrim     = /^\s+|\s+$/g,
-    RegExpTrimLeft = /^\s+/,
-    RegExpWSChars  = /(\r\n|\n|\r|\t|\u00A0)/gm,
-    RegExpMultiWS  = /\s+/g;
+var RegExpTrim        = /^\s+|\s+$/g;
+var RegExpTrimLeft    = /^\s+/;
+var RegExpWSChars     = /(\r\n|\n|\r|\t|\u00A0)/gm;
+var RegExpMultiWS     = /\s+/g;
 
 /**
  * String.prototype.trim polyfill
@@ -300,6 +321,13 @@ function trim(string) {
  */
 function trimLeft(string) {
   return string ? (string + '').replace(RegExpTrimLeft, '') : '';
+}
+
+/**
+ * Replaces non-alphanumeric chars with underscores
+ */
+function underscore(string) {
+  return string ? (string + '').replace(/ /g, '_') : '';
 }
 
 /**
@@ -322,13 +350,21 @@ function injectIntoString(string, injection, index) {
  * @param options
  */
 function Compiler(options) {
+  var parser = new HTMLParser();
+  var renderer = new HTMLRenderer();
   var defaults = {
-    parser        : new HTMLParser(),
-    renderer      : new HTMLRenderer(),
-    blockTypes    : DefaultBlockTypes,
-    markupTypes   : DefaultMarkupTypes
+    parser           : parser,
+    renderer         : renderer,
+    blockTypes       : DefaultBlockTypeSet,
+    markupTypes      : DefaultMarkupTypeSet,
+    includeTypeNames : false // true will output type_name: 'TEXT' etc. when parsing for easier debugging
   };
   merge(this, defaults, options);
+
+  // Reference the compiler settings
+  parser.blockTypes  = renderer.blockTypes  = this.blockTypes;
+  parser.markupTypes = renderer.markupTypes = this.markupTypes;
+  parser.includeTypeNames = this.includeTypeNames;
 }
 
 /**
@@ -349,6 +385,26 @@ Compiler.prototype.render = function(data) {
   return this.renderer.render(data);
 };
 
+/**
+ * @method registerBlockType
+ * @param {Type} type
+ */
+Compiler.prototype.registerBlockType = function(type) {
+  if (type instanceof Type) {
+    this.blockTypes.addType(type);
+  }
+};
+
+/**
+ * @method registerMarkupType
+ * @param {Type} type
+ */
+Compiler.prototype.registerMarkupType = function(type) {
+  if (type instanceof Type) {
+    this.markupTypes.addType(type);
+  }
+};
+
 ContentKit.Compiler = Compiler;
 
 /**
@@ -357,6 +413,8 @@ ContentKit.Compiler = Compiler;
  */
 function HTMLParser(options) {
   var defaults = {
+    blockTypes       : DefaultBlockTypeSet,
+    markupTypes      : DefaultMarkupTypeSet,
     includeTypeNames : false
   };
   merge(this, defaults, options);
@@ -381,16 +439,16 @@ HTMLParser.prototype.parse = function(html) {
     // We'll handle some cases if it isn't so we don't lose any content when parsing.
     // Parser assumes sane input (such as from the ContentKit Editor) and is not intended to be a full html sanitizer.
     if (currentNode.nodeType === 1) {
-      block = parseBlock(currentNode, this.includeTypeNames);
+      block = this.parseBlock(currentNode);
       if (block) {
         blocks.push(block);
       } else {
-        handleNonBlockElementAtRoot(currentNode, blocks);
+        handleNonBlockElementAtRoot(this, currentNode, blocks);
       }
     } else if (currentNode.nodeType === 3) {
       text = currentNode.nodeValue;
       if (trim(text)) {
-        block = getLastBlockOrCreate(blocks);
+        block = getLastBlockOrCreate(this, blocks);
         block.value += text;
       }
     }
@@ -399,29 +457,32 @@ HTMLParser.prototype.parse = function(html) {
   return blocks;
 };
 
-ContentKit.HTMLParser = HTMLParser;
-
-
 /**
- * Parses a single block type node into json
+ * @method parseBlock
+ * @param node DOM node to parse
+ * @return {BlockModel} parsed block model
+ * Parses a single block type node into a model
  */
-function parseBlock(node, includeTypeNames) {
-  var meta = BlockType.findByNode(node);
-  if (meta) {
+HTMLParser.prototype.parseBlock = function(node) {
+  var type = this.blockTypes.findByNode(node);
+  if (type) {
     return new BlockModel({
-      type       : meta.id,
-      type_name  : includeTypeNames && meta.name,
+      type       : type.id,
+      type_name  : this.includeTypeNames && type.name,
       value      : trim(textOfNode(node)),
       attributes : attributesForNode(node),
-      markup     : parseBlockMarkup(node, includeTypeNames)
+      markup     : this.parseBlockMarkup(node)
     });
   }
-}
+};
 
 /**
- * Parses all of the markup in a block type node
+ * @method parseBlockMarkup
+ * @param node DOM node to parse
+ * @return {Array} parsed markups
+ * Parses a single block type node's markup
  */
-function parseBlockMarkup(node, includeTypeNames) {
+HTMLParser.prototype.parseBlockMarkup = function(node) {
   var processedText = '',
       markups = [],
       index = 0,
@@ -430,7 +491,7 @@ function parseBlockMarkup(node, includeTypeNames) {
   while (node.hasChildNodes()) {
     currentNode = node.firstChild;
     if (currentNode.nodeType === 1) {
-      markup = parseElementMarkup(currentNode, processedText.length, includeTypeNames);
+      markup = this.parseElementMarkup(currentNode, processedText.length);
       if (markup) {
         markups.push(markup);
       }
@@ -450,38 +511,45 @@ function parseBlockMarkup(node, includeTypeNames) {
   }
 
   return markups;
-}
+};
 
 /**
+ * @method parseElementMarkup
+ * @param node DOM node to parse
+ * @param startIndex DOM node to parse
+ * @return {MarkupModel} parsed markup model
  * Parses markup of a single html element node
  */
-function parseElementMarkup(node, startIndex, includeTypeNames) {
-  var meta = MarkupType.findByNode(node),
+HTMLParser.prototype.parseElementMarkup = function(node, startIndex) {
+  var type = this.markupTypes.findByNode(node),
       selfClosing, endIndex;
 
-  if (meta) {
-    selfClosing = meta.selfClosing;
+  if (type) {
+    selfClosing = type.selfClosing;
     if (!selfClosing && !node.hasChildNodes()) { return; } // check for empty nodes
 
     endIndex = startIndex + (selfClosing ? 0 : textOfNode(node).length);
     if (endIndex > startIndex || (selfClosing && endIndex === startIndex)) { // check for empty nodes
       return new MarkupModel({
-        type       : meta.id,
-        type_name  : includeTypeNames && meta.name,
+        type       : type.id,
+        type_name  : this.includeTypeNames && type.name,
         start      : startIndex,
         end        : endIndex,
         attributes : attributesForNode(node)
       });
     }
   }
-}
+};
+
+ContentKit.HTMLParser = HTMLParser;
+
 
 /**
  * Helper to retain stray elements at the root of the html that aren't blocks
  */
-function handleNonBlockElementAtRoot(elementNode, blocks) {
-  var block = getLastBlockOrCreate(blocks),
-      markup = parseElementMarkup(elementNode, block.value.length);
+function handleNonBlockElementAtRoot(parser, elementNode, blocks) {
+  var block = getLastBlockOrCreate(parser, blocks),
+      markup = parser.parseElementMarkup(elementNode, block.value.length);
   if (markup) {
     block.markup.push(markup);
   }
@@ -491,12 +559,12 @@ function handleNonBlockElementAtRoot(elementNode, blocks) {
 /**
  * Gets the last block in the set or creates and return a default block if none exist yet.
  */
-function getLastBlockOrCreate(blocks) {
+function getLastBlockOrCreate(parser, blocks) {
   var block;
   if (blocks.length) {
     block = blocks[blocks.length - 1];
   } else {
-    block = parseBlock(doc.createElement(DefaultBlockTypes.TEXT.tag));
+    block = parser.parseBlock(doc.createElement(DefaultBlockTypeSet.TEXT.tag));
     blocks.push(block);
   }
   return block;
@@ -508,7 +576,9 @@ function getLastBlockOrCreate(blocks) {
  */
 function HTMLRenderer(options) {
   var defaults = {
-    typeRenderers : {}
+    typeRenderers : {},
+    blockTypes    : DefaultBlockTypeSet,
+    markupTypes   : DefaultMarkupTypeSet
   };
   merge(this, defaults, options);
 }
@@ -525,11 +595,70 @@ HTMLRenderer.prototype.render = function(data) {
 
   for (i = 0; i < len; i++) {
     block = data[i];
-    typeRenderer = this.typeRenderers[block.type] || renderBlock;
-    blockHtml = typeRenderer(block);
+    typeRenderer = this.typeRenderers[block.type] || this.renderBlock;
+    blockHtml = typeRenderer.call(this, block);
     if (blockHtml) { html += blockHtml; }
   }
   return html;
+};
+
+/**
+ * @method renderBlock
+ * @param block a block model
+ * @return String html
+ * Renders a block model into a HTML string.
+ */
+HTMLRenderer.prototype.renderBlock = function(block) {
+  var type = this.blockTypes.findById(block.type),
+      html = '', tagName, selfClosing;
+
+  if (type) {
+    tagName = type.tag;
+    selfClosing = type.selfClosing;
+    html += createOpeningTag(tagName, block.attributes, selfClosing);
+    if (!selfClosing) {
+      html += this.renderMarkup(block.value, block.markup);
+      html += createCloseTag(tagName);
+    }
+  }
+  return html;
+};
+
+/**
+ * @method renderMarkup
+ * @param text plain text to apply markup to
+ * @param markup an array of markup models
+ * @return String html
+ * Renders a markup model into a HTML string.
+ */
+HTMLRenderer.prototype.renderMarkup = function(text, markups) {
+  var parsedTagsIndexes = [],
+      len = markups && markups.length, i;
+
+  for (i = 0; i < len; i++) {
+    var markup = markups[i],
+        markupMeta = this.markupTypes.findById(markup.type),
+        tagName = markupMeta.tag,
+        selfClosing = markupMeta.selfClosing,
+        start = markup.start,
+        end = markup.end,
+        openTag = createOpeningTag(tagName, markup.attributes, selfClosing),
+        parsedTagLengthAtIndex = parsedTagsIndexes[start] || 0,
+        parsedTagLengthBeforeIndex = sumArray(parsedTagsIndexes.slice(0, start + 1));
+
+    text = injectIntoString(text, openTag, start + parsedTagLengthBeforeIndex);
+    parsedTagsIndexes[start] = parsedTagLengthAtIndex + openTag.length;
+
+    if (!selfClosing) {
+      var closeTag = createCloseTag(tagName);
+      parsedTagLengthAtIndex = parsedTagsIndexes[end] || 0;
+      parsedTagLengthBeforeIndex = sumArray(parsedTagsIndexes.slice(0, end));
+      text = injectIntoString(text, closeTag, end + parsedTagLengthBeforeIndex);
+      parsedTagsIndexes[end]  = parsedTagLengthAtIndex + closeTag.length;
+    }
+  }
+
+  return text;
 };
 
 /**
@@ -566,58 +695,6 @@ function createOpeningTag(tagName, attributes, selfClosing /*,blacklist*/) {
  */
 function createCloseTag(tagName) {
   return '</' + tagName + '>';
-}
-
-/**
- * Renders a block's json into a HTML string.
- */
-function renderBlock(block) {
-  var blockMeta = BlockType.findById(block.type),
-      html = '', tagName, selfClosing;
-
-  if (blockMeta) {
-    tagName = blockMeta.tag;
-    selfClosing = blockMeta.selfClosing;
-    html += createOpeningTag(tagName, block.attributes, selfClosing);
-    if (!selfClosing) {
-      html += renderMarkup(block.value, block.markup);
-      html += createCloseTag(tagName);
-    }
-  }
-  return html;
-}
-
-/**
- * Renders markup json into a HTML string.
- */
-function renderMarkup(text, markups) {
-  var parsedTagsIndexes = [],
-      len = markups && markups.length, i;
-
-  for (i = 0; i < len; i++) {
-    var markup = markups[i],
-        markupMeta = MarkupType.findById(markup.type),
-        tagName = markupMeta.tag,
-        selfClosing = markupMeta.selfClosing,
-        start = markup.start,
-        end = markup.end,
-        openTag = createOpeningTag(tagName, markup.attributes, selfClosing),
-        parsedTagLengthAtIndex = parsedTagsIndexes[start] || 0,
-        parsedTagLengthBeforeIndex = sumArray(parsedTagsIndexes.slice(0, start + 1));
-
-    text = injectIntoString(text, openTag, start + parsedTagLengthBeforeIndex);
-    parsedTagsIndexes[start] = parsedTagLengthAtIndex + openTag.length;
-
-    if (!selfClosing) {
-      var closeTag = createCloseTag(tagName);
-      parsedTagLengthAtIndex = parsedTagsIndexes[end] || 0;
-      parsedTagLengthBeforeIndex = sumArray(parsedTagsIndexes.slice(0, end));
-      text = injectIntoString(text, closeTag, end + parsedTagLengthBeforeIndex);
-      parsedTagsIndexes[end]  = parsedTagLengthAtIndex + closeTag.length;
-    }
-  }
-
-  return text;
 }
 
 }(this, document));

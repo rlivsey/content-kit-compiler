@@ -26,3 +26,18 @@ function sortBlockMarkups(markups) {
 }
 
 ContentKit.BlockModel = BlockModel;
+
+/**
+ * @class TextModel
+ * @constructor
+ * @extends BlockModel
+ */
+function TextModel(options) {
+  options = options || {};
+  options.type = DefaultBlockTypeSet.TEXT.id;
+  options.type_name = DefaultBlockTypeSet.TEXT.name;
+  BlockModel.call(this, options);
+}
+inherit(TextModel, BlockModel);
+
+ContentKit.TextModel = TextModel;

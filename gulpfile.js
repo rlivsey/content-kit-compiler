@@ -14,7 +14,7 @@ var pkg = require('./package.json');
 var src = [
   './src/index.js',
   './src/types/type.js',
-  './src/types/*.js',
+  './src/types/type-set.js',
   './src/models/model.js',
   './src/models/*.js',
   './src/utils/*.js',

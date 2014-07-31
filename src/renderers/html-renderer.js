@@ -4,7 +4,9 @@
  */
 function HTMLRenderer(options) {
   var defaults = {
-    typeRenderers : {}
+    typeRenderers : {},
+    blockTypes    : DefaultBlockTypeSet,
+    markupTypes   : DefaultMarkupTypeSet
   };
   merge(this, defaults, options);
 }
@@ -21,11 +23,70 @@ HTMLRenderer.prototype.render = function(data) {
 
   for (i = 0; i < len; i++) {
     block = data[i];
-    typeRenderer = this.typeRenderers[block.type] || renderBlock;
-    blockHtml = typeRenderer(block);
+    typeRenderer = this.typeRenderers[block.type] || this.renderBlock;
+    blockHtml = typeRenderer.call(this, block);
     if (blockHtml) { html += blockHtml; }
   }
   return html;
+};
+
+/**
+ * @method renderBlock
+ * @param block a block model
+ * @return String html
+ * Renders a block model into a HTML string.
+ */
+HTMLRenderer.prototype.renderBlock = function(block) {
+  var type = this.blockTypes.findById(block.type),
+      html = '', tagName, selfClosing;
+
+  if (type) {
+    tagName = type.tag;
+    selfClosing = type.selfClosing;
+    html += createOpeningTag(tagName, block.attributes, selfClosing);
+    if (!selfClosing) {
+      html += this.renderMarkup(block.value, block.markup);
+      html += createCloseTag(tagName);
+    }
+  }
+  return html;
+};
+
+/**
+ * @method renderMarkup
+ * @param text plain text to apply markup to
+ * @param markup an array of markup models
+ * @return String html
+ * Renders a markup model into a HTML string.
+ */
+HTMLRenderer.prototype.renderMarkup = function(text, markups) {
+  var parsedTagsIndexes = [],
+      len = markups && markups.length, i;
+
+  for (i = 0; i < len; i++) {
+    var markup = markups[i],
+        markupMeta = this.markupTypes.findById(markup.type),
+        tagName = markupMeta.tag,
+        selfClosing = markupMeta.selfClosing,
+        start = markup.start,
+        end = markup.end,
+        openTag = createOpeningTag(tagName, markup.attributes, selfClosing),
+        parsedTagLengthAtIndex = parsedTagsIndexes[start] || 0,
+        parsedTagLengthBeforeIndex = sumArray(parsedTagsIndexes.slice(0, start + 1));
+
+    text = injectIntoString(text, openTag, start + parsedTagLengthBeforeIndex);
+    parsedTagsIndexes[start] = parsedTagLengthAtIndex + openTag.length;
+
+    if (!selfClosing) {
+      var closeTag = createCloseTag(tagName);
+      parsedTagLengthAtIndex = parsedTagsIndexes[end] || 0;
+      parsedTagLengthBeforeIndex = sumArray(parsedTagsIndexes.slice(0, end));
+      text = injectIntoString(text, closeTag, end + parsedTagLengthBeforeIndex);
+      parsedTagsIndexes[end]  = parsedTagLengthAtIndex + closeTag.length;
+    }
+  }
+
+  return text;
 };
 
 /**
@@ -62,56 +123,4 @@ function createOpeningTag(tagName, attributes, selfClosing /*,blacklist*/) {
  */
 function createCloseTag(tagName) {
   return '</' + tagName + '>';
-}
-
-/**
- * Renders a block's json into a HTML string.
- */
-function renderBlock(block) {
-  var blockMeta = BlockType.findById(block.type),
-      html = '', tagName, selfClosing;
-
-  if (blockMeta) {
-    tagName = blockMeta.tag;
-    selfClosing = blockMeta.selfClosing;
-    html += createOpeningTag(tagName, block.attributes, selfClosing);
-    if (!selfClosing) {
-      html += renderMarkup(block.value, block.markup);
-      html += createCloseTag(tagName);
-    }
-  }
-  return html;
-}
-
-/**
- * Renders markup json into a HTML string.
- */
-function renderMarkup(text, markups) {
-  var parsedTagsIndexes = [],
-      len = markups && markups.length, i;
-
-  for (i = 0; i < len; i++) {
-    var markup = markups[i],
-        markupMeta = MarkupType.findById(markup.type),
-        tagName = markupMeta.tag,
-        selfClosing = markupMeta.selfClosing,
-        start = markup.start,
-        end = markup.end,
-        openTag = createOpeningTag(tagName, markup.attributes, selfClosing),
-        parsedTagLengthAtIndex = parsedTagsIndexes[start] || 0,
-        parsedTagLengthBeforeIndex = sumArray(parsedTagsIndexes.slice(0, start + 1));
-
-    text = injectIntoString(text, openTag, start + parsedTagLengthBeforeIndex);
-    parsedTagsIndexes[start] = parsedTagLengthAtIndex + openTag.length;
-
-    if (!selfClosing) {
-      var closeTag = createCloseTag(tagName);
-      parsedTagLengthAtIndex = parsedTagsIndexes[end] || 0;
-      parsedTagLengthBeforeIndex = sumArray(parsedTagsIndexes.slice(0, end));
-      text = injectIntoString(text, closeTag, end + parsedTagLengthBeforeIndex);
-      parsedTagsIndexes[end]  = parsedTagLengthAtIndex + closeTag.length;
-    }
-  }
-
-  return text;
 }
