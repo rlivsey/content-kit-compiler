@@ -1,3 +1,31 @@
+import { DefaultBlockTypeSet, DefaultMarkupTypeSet } from '../types/default-types';
+import { merge } from '../utils/object-utils';
+import { injectIntoString } from '../utils/string-utils';
+import { sumSparseArray } from '../utils/array-utils';
+
+/**
+ * Builds an opening html tag. i.e. '<a href="http://link.com/" rel="author">'
+ */
+function createOpeningTag(tagName, attributes, selfClosing /*,blacklist*/) {
+  var tag = '<' + tagName;
+  for (var attr in attributes) {
+    if (attributes.hasOwnProperty(attr)) {
+      //if (blacklist && attr in blacklist) { continue; }
+      tag += ' ' + attr + '="' + attributes[attr] + '"';
+    }
+  }
+  if (selfClosing) { tag += '/'; }
+  tag += '>';
+  return tag;
+}
+
+/**
+ * Builds a closing html tag. i.e. '</p>'
+ */
+function createCloseTag(tagName) {
+  return '</' + tagName + '>';
+}
+
 /**
  * @class HTMLRenderer
  * @constructor
@@ -72,7 +100,7 @@ HTMLRenderer.prototype.renderMarkup = function(text, markups) {
         end = markup.end,
         openTag = createOpeningTag(tagName, markup.attributes, selfClosing),
         parsedTagLengthAtIndex = parsedTagsIndexes[start] || 0,
-        parsedTagLengthBeforeIndex = sumArray(parsedTagsIndexes.slice(0, start + 1));
+        parsedTagLengthBeforeIndex = sumSparseArray(parsedTagsIndexes.slice(0, start + 1));
 
     text = injectIntoString(text, openTag, start + parsedTagLengthBeforeIndex);
     parsedTagsIndexes[start] = parsedTagLengthAtIndex + openTag.length;
@@ -80,7 +108,7 @@ HTMLRenderer.prototype.renderMarkup = function(text, markups) {
     if (!selfClosing) {
       var closeTag = createCloseTag(tagName);
       parsedTagLengthAtIndex = parsedTagsIndexes[end] || 0;
-      parsedTagLengthBeforeIndex = sumArray(parsedTagsIndexes.slice(0, end));
+      parsedTagLengthBeforeIndex = sumSparseArray(parsedTagsIndexes.slice(0, end));
       text = injectIntoString(text, closeTag, end + parsedTagLengthBeforeIndex);
       parsedTagsIndexes[end]  = parsedTagLengthAtIndex + closeTag.length;
     }
@@ -99,28 +127,5 @@ HTMLRenderer.prototype.willRenderType = function(type, renderer) {
   this.typeRenderers[type] = renderer;
 };
 
-ContentKit.HTMLRenderer = HTMLRenderer;
+export default HTMLRenderer;
 
-
-/**
- * Builds an opening html tag. i.e. '<a href="http://link.com/" rel="author">'
- */
-function createOpeningTag(tagName, attributes, selfClosing /*,blacklist*/) {
-  var tag = '<' + tagName;
-  for (var attr in attributes) {
-    if (attributes.hasOwnProperty(attr)) {
-      //if (blacklist && attr in blacklist) { continue; }
-      tag += ' ' + attr + '="' + attributes[attr] + '"';
-    }
-  }
-  if (selfClosing) { tag += '/'; }
-  tag += '>';
-  return tag;
-}
-
-/**
- * Builds a closing html tag. i.e. '</p>'
- */
-function createCloseTag(tagName) {
-  return '</' + tagName + '>';
-}

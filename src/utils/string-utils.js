@@ -39,3 +39,5 @@ function sanitizeWhitespace(string) {
 function injectIntoString(string, injection, index) {
   return string.substr(0, index) + injection + string.substr(index);
 }
+
+export { trim, trimLeft, underscore, sanitizeWhitespace, injectIntoString};

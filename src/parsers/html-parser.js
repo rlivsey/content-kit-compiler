@@ -1,3 +1,37 @@
+import BlockModel from '../models/block';
+import MarkupModel from '../models/markup';
+import { DefaultBlockTypeSet, DefaultMarkupTypeSet } from '../types/default-types';
+import { merge } from '../utils/object-utils';
+import { toArray } from '../utils/array-utils';
+import { trim, trimLeft, sanitizeWhitespace } from '../utils/string-utils';
+import { createElement, DOMParsingNode, textOfNode, unwrapNode, attributesForNode } from '../utils/node-utils';
+
+/**
+ * Helper to retain stray elements at the root of the html that aren't blocks
+ */
+function handleNonBlockElementAtRoot(parser, elementNode, blocks) {
+  var block = getLastBlockOrCreate(parser, blocks),
+      markup = parser.parseElementMarkup(elementNode, block.value.length);
+  if (markup) {
+    block.markup.push(markup);
+  }
+  block.value += textOfNode(elementNode);
+}
+
+/**
+ * Gets the last block in the set or creates and return a default block if none exist yet.
+ */
+function getLastBlockOrCreate(parser, blocks) {
+  var block;
+  if (blocks.length) {
+    block = blocks[blocks.length - 1];
+  } else {
+    block = parser.parseBlock(createElement(DefaultBlockTypeSet.TEXT.tag));
+    blocks.push(block);
+  }
+  return block;
+}
+
 /**
  * @class HTMLParser
  * @constructor
@@ -17,9 +51,9 @@ function HTMLParser(options) {
  * @return Array Parsed JSON content array
  */
 HTMLParser.prototype.parse = function(html) {
-  parserNode.innerHTML = sanitizeWhitespace(html);
+  DOMParsingNode.innerHTML = sanitizeWhitespace(html);
 
-  var children = toArray(parserNode.childNodes),
+  var children = toArray(DOMParsingNode.childNodes),
       len = children.length,
       blocks = [],
       i, currentNode, block, text;
@@ -132,31 +166,4 @@ HTMLParser.prototype.parseElementMarkup = function(node, startIndex) {
   }
 };
 
-ContentKit.HTMLParser = HTMLParser;
-
-
-/**
- * Helper to retain stray elements at the root of the html that aren't blocks
- */
-function handleNonBlockElementAtRoot(parser, elementNode, blocks) {
-  var block = getLastBlockOrCreate(parser, blocks),
-      markup = parser.parseElementMarkup(elementNode, block.value.length);
-  if (markup) {
-    block.markup.push(markup);
-  }
-  block.value += textOfNode(elementNode);
-}
-
-/**
- * Gets the last block in the set or creates and return a default block if none exist yet.
- */
-function getLastBlockOrCreate(parser, blocks) {
-  var block;
-  if (blocks.length) {
-    block = blocks[blocks.length - 1];
-  } else {
-    block = parser.parseBlock(doc.createElement(DefaultBlockTypeSet.TEXT.tag));
-    blocks.push(block);
-  }
-  return block;
-}
+export default HTMLParser;

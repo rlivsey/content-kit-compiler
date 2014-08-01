@@ -16,3 +16,5 @@ function Model(options) {
     this.attributes = attributes;
   }
 }
+
+export default Model;

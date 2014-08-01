@@ -1,3 +1,4 @@
+import { underscore } from '../utils/string-utils';
 /**
  * @class Type
  * @constructor
@@ -16,4 +17,4 @@ function Type(options) {
   }
 }
 
-ContentKit.Type = Type;
+export default Type;

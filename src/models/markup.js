@@ -1,3 +1,6 @@
+import Model from './model';
+import { inherit } from '../utils/object-utils';
+
 /**
  * @class MarkupModel
  * @constructor
@@ -11,4 +14,4 @@ function MarkupModel(options) {
 }
 inherit(MarkupModel, Model);
 
-ContentKit.MarkupModel = MarkupModel;
+export default MarkupModel;

@@ -1,3 +1,9 @@
+import HTMLParser from './parsers/html-parser';
+import HTMLRenderer from './renderers/html-renderer';
+import Type from './types/type';
+import { DefaultBlockTypeSet, DefaultMarkupTypeSet } from './types/default-types';
+import { merge } from '../utils/object-utils';
+
 /**
  * @class Compiler
  * @constructor
@@ -59,4 +65,4 @@ Compiler.prototype.registerMarkupType = function(type) {
   }
 };
 
-ContentKit.Compiler = Compiler;
+export default Compiler;

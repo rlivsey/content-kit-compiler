@@ -23,3 +23,5 @@ function inherit(Sub, Super) {
   Sub.prototype = new Super();
   Sub.constructor = Sub;
 }
+
+export { merge, inherit };

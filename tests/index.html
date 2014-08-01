@@ -11,7 +11,11 @@
   
   <script src="lib/qunit.js"></script>
 
+  <script src="../ext/loader.js"></script>
   <script src="../dist/content-kit-compiler.js"></script>
+  <script>
+    window.ContentKit = require('content-kit')['default'];
+  </script>
 
   <script src="scripts/compiler.js"></script>
   <script src="scripts/html-parser.js"></script>
