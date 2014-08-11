@@ -32,6 +32,3 @@ node_modules
 
 # Misc
 export.sh
-
-# Ignore builds for now
-dist
