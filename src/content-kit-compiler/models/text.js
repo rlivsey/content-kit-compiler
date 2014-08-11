@@ -1,16 +1,17 @@
 import BlockModel from './block';
-import { DefaultBlockTypeSet } from '../types/default-types';
-import { inherit } from '../utils/object-utils';
+import Type from '../types/type';
+import { inherit } from '../../content-kit-utils/object-utils';
 
 /**
  * @class TextModel
  * @constructor
  * @extends BlockModel
+ * A simple BlockModel subclass representing a paragraph of text
  */
 function TextModel(options) {
   options = options || {};
-  options.type = DefaultBlockTypeSet.TEXT.id;
-  options.type_name = DefaultBlockTypeSet.TEXT.name;
+  options.type = Type.TEXT.id;
+  options.type_name = Type.TEXT.name;
   BlockModel.call(this, options);
 }
 inherit(TextModel, BlockModel);

@@ -92,29 +92,7 @@ _Output:_
 ```
 
 #### Customization & Hooks
-Your application may want to add custom types, or control how certain element's html is rendered.
-```js
-var compiler = new ContentKit.Compiler();
-compiler.renderer.willRenderType(15, function(data) {
-  return '<video src="' + data.src + '" poster="' + data.poster + '">' + data.title + '</video>';
-});
-
-var json = [
-  {
-    type: 15,
-    src: 'https://www.youtube.com/v/0XcN12uVHeQ',
-    poster: 'http://i.ytimg.com/vi/0XcN12uVHeQ/0.jpg',
-    title: 'Red Hot Chili Peppers - Soul to Squeeze'
-  }
-];
-
-var html = compiler.render(json);
-```
-
-_Output:_
-```html
-<video src="https://www.youtube.com/v/0XcN12uVHeQ" poster="http://i.ytimg.com/vi/0XcN12uVHeQ/0.jpg">Red Hot Chili Peppers - Soul to Squeeze</video>
-```
+API currently in flux
 
 ## Building / Testing
 ```

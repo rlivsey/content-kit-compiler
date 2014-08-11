@@ -3,8 +3,8 @@
  * Note: could just use Array.prototype.slice but does not work in IE <= 8
  */
 function toArray(obj) {
-  var array = [],
-      i = obj.length >>> 0; // cast to Uint32
+  var array = [];
+  var i = obj && obj.length >>> 0; // cast to Uint32
   while (i--) {
     array[i] = obj[i];
   }
@@ -15,9 +15,11 @@ function toArray(obj) {
  * Computes the sum of values in a (sparse) array
  */
 function sumSparseArray(array) {
-  var sum = 0, i, num;
-  for (i in array) { // 'for in' best for sparse arrays
-    sum += array[i];
+  var sum = 0, i;
+  for (i in array) { // 'for in' is better for sparse arrays
+    if (array.hasOwnProperty(i)) {
+      sum += array[i];
+    }
   }
   return sum;
 }

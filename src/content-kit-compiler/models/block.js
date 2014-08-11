@@ -1,18 +1,5 @@
 import Model from './model';
-import { inherit } from '../utils/object-utils';
-
-/**
- * @class BlockModel
- * @constructor
- * @extends Model
- */
-function BlockModel(options) {
-  options = options || {};
-  Model.call(this, options);
-  this.value = options.value || '';
-  this.markup = sortBlockMarkups(options.markup || []);
-}
-inherit(BlockModel, Model);
+import { inherit } from '../../content-kit-utils/object-utils';
 
 /**
  * Ensures block markups at the same index are always in a specific order.
@@ -27,5 +14,18 @@ function sortBlockMarkups(markups) {
     return 0;
   });
 }
+
+/**
+ * @class BlockModel
+ * @constructor
+ * @extends Model
+ */
+function BlockModel(options) {
+  options = options || {};
+  Model.call(this, options);
+  this.value = options.value || '';
+  this.markup = sortBlockMarkups(options.markup || []);
+}
+inherit(BlockModel, Model);
 
 export default BlockModel;

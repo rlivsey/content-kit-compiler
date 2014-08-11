@@ -1,4 +1,5 @@
-import { underscore } from '../utils/string-utils';
+import { underscore } from '../../content-kit-utils/string-utils';
+
 /**
  * @class Type
  * @constructor
@@ -14,6 +15,9 @@ function Type(options) {
       this.tag = options.tag.toLowerCase();
       this.selfClosing = /^(br|img|hr|meta|link|embed)$/i.test(this.tag);
     }
+
+    // Register the type as constant
+    Type[this.name] = this;
   }
 }
 

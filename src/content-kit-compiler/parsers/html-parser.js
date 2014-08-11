@@ -1,22 +1,10 @@
 import BlockModel from '../models/block';
 import MarkupModel from '../models/markup';
 import { DefaultBlockTypeSet, DefaultMarkupTypeSet } from '../types/default-types';
-import { merge } from '../utils/object-utils';
-import { toArray } from '../utils/array-utils';
-import { trim, trimLeft, sanitizeWhitespace } from '../utils/string-utils';
-import { createElement, DOMParsingNode, textOfNode, unwrapNode, attributesForNode } from '../utils/node-utils';
-
-/**
- * Helper to retain stray elements at the root of the html that aren't blocks
- */
-function handleNonBlockElementAtRoot(parser, elementNode, blocks) {
-  var block = getLastBlockOrCreate(parser, blocks),
-      markup = parser.parseElementMarkup(elementNode, block.value.length);
-  if (markup) {
-    block.markup.push(markup);
-  }
-  block.value += textOfNode(elementNode);
-}
+import { mergeWithOptions } from '../../content-kit-utils/object-utils';
+import { toArray } from '../../content-kit-utils/array-utils';
+import { trim, trimLeft, sanitizeWhitespace } from '../../content-kit-utils/string-utils';
+import { createElement, DOMParsingNode, textOfNode, unwrapNode, attributesForNode } from '../../content-kit-utils/node-utils';
 
 /**
  * Gets the last block in the set or creates and return a default block if none exist yet.
@@ -33,6 +21,18 @@ function getLastBlockOrCreate(parser, blocks) {
 }
 
 /**
+ * Helper to retain stray elements at the root of the html that aren't blocks
+ */
+function handleNonBlockElementAtRoot(parser, elementNode, blocks) {
+  var block = getLastBlockOrCreate(parser, blocks),
+      markup = parser.parseElementMarkup(elementNode, block.value.length);
+  if (markup) {
+    block.markup.push(markup);
+  }
+  block.value += textOfNode(elementNode);
+}
+
+/**
  * @class HTMLParser
  * @constructor
  */
@@ -42,7 +42,7 @@ function HTMLParser(options) {
     markupTypes      : DefaultMarkupTypeSet,
     includeTypeNames : false
   };
-  merge(this, defaults, options);
+  mergeWithOptions(this, defaults, options);
 }
 
 /**
@@ -112,6 +112,9 @@ HTMLParser.prototype.parseBlockMarkup = function(node) {
       markups = [],
       index = 0,
       currentNode, markup;
+
+  // Clone the node since it will be recursively torn down
+  node = node.cloneNode(true);
 
   while (node.hasChildNodes()) {
     currentNode = node.firstChild;

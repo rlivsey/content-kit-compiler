@@ -1,5 +1,5 @@
 import Model from './model';
-import { inherit } from '../utils/object-utils';
+import { inherit } from '../../content-kit-utils/object-utils';
 
 /**
  * @class MarkupModel

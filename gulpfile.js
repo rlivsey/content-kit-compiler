@@ -2,12 +2,10 @@ var gulp   = require('gulp');
 var jshint = require('gulp-jshint');
 var qunit  = require('gulp-qunit');
 var concat = require('gulp-concat');
-var uglify = require('gulp-uglify');
-var rename = require('gulp-rename');
 var header = require('gulp-header');
 var footer = require('gulp-footer');
 var util   = require('gulp-util');
-var open   = require('gulp-open');
+var gulpOpen = require('gulp-open');
 var es6ModuleTranspiler = require('gulp-es6-module-transpiler');
 
 var pkg = require('./package.json');
@@ -32,12 +30,10 @@ var banner = ['/*!',
               ' */',
               ''].join('\n'); 
 
-var iifeHeader = ['',
-                  '(function(window, document, define, undefined) {',
+var iifeHeader = ['(function(window, document, undefined) {',
                   '',
                   ''].join('\n'); 
-var iifeFooter = ['',
-                  '}(this, document, define));',
+var iifeFooter = ['}(this, document));',
                   ''].join('\n'); 
 
 gulp.task('lint', function() {
@@ -46,13 +42,13 @@ gulp.task('lint', function() {
       .pipe(jshint.reporter('default'));
 });
 
-gulp.task('lint-built', function() {
+gulp.task('lint-built', ['build'], function() {
   return gulp.src(distPath)
              .pipe(jshint('.jshintrc'))
              .pipe(jshint.reporter('default'));
 });
 
-gulp.task('build', function() {
+gulp.task('build', ['lint'], function() {
   gulp.src(jsSrc)
       .pipe(es6ModuleTranspiler({ type: 'amd' }))
       .pipe(concat(distName))
@@ -62,18 +58,18 @@ gulp.task('build', function() {
       .pipe(gulp.dest(distDest));
 });
 
-gulp.task('test', function() {
+gulp.task('test', ['build'], function() {
   return gulp.src(testRunner)
              .pipe(qunit());
 });
 
-gulp.task('test-browser', function(){
+gulp.task('test-browser', ['build'], function(){
   return gulp.src(testRunner)
-             .pipe(open('<% file.path %>')); 
+             .pipe(gulpOpen('<% file.path %>')); 
 });
 
 gulp.task('watch', function() {
-  gulp.watch(src, ['build']);
+  gulp.watch(jsSrc, ['build']);
 });
 
 

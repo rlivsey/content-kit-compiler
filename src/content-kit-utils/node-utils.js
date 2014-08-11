@@ -6,8 +6,9 @@ import { toArray } from './array-utils';
  * Prevents images, scripts, and styles from executing while parsing nodes.
  */
 var standaloneDocument = (function() {
-  var implementation = document.implementation,
-      createHTMLDocument = implementation.createHTMLDocument;
+  var implementation = document.implementation;
+  var createHTMLDocument = implementation.createHTMLDocument;
+
   if (createHTMLDocument) {
     return createHTMLDocument.call(implementation, '');
   }
@@ -35,12 +36,12 @@ function textOfNode(node) {
 }
 
 /**
- * Replaces a `Node` with it with its children
+ * Replaces a `Node` with its children
  */
 function unwrapNode(node) {
-  var children = toArray(node.childNodes),
-      len = children.length,
-      parent = node.parentNode, i;
+  var children = toArray(node.childNodes);
+  var len = children.length;
+  var parent = node.parentNode, i;
   for (i = 0; i < len; i++) {
     parent.insertBefore(children[i], node);
   }
@@ -50,9 +51,10 @@ function unwrapNode(node) {
  * Extracts attributes of a `Node` to a hash of key/value pairs
  */
 function attributesForNode(node /*,blacklist*/) {
-  var attrs = node.attributes,
-      len = attrs && attrs.length,
-      i, attr, name, hash;
+  var attrs = node.attributes;
+  var len = attrs && attrs.length;
+  var i, attr, name, hash;
+  
   for (i = 0; i < len; i++) {
     attr = attrs[i];
     name = attr.name;

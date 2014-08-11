@@ -69,41 +69,21 @@ test('render self-closing elements', function() {
   equal ( rendered, input );
 });
 
-test('registering custom type renderers', function() {
-  var compiler = new ContentKit.Compiler();
-  compiler.renderer.willRenderType(15, function(data) {
-    return '<cite>' + data.value + '</cite>';
+test('willRenderType hooks', function() {
+  var input = '<img src="http://domain.com/test1.png"/>';
+  var parsed = compiler.parse(input);
+
+  compiler.renderer.willRenderType(ContentKit.Type.IMAGE, function(model) {
+    return '<div class="image-wrapper">' + this.render(model) + '</div>';
   });
 
-  var html = compiler.render([
-    {
-      type: 15,
-      value: 'test text'
-    }
-  ]);
+  var rendered = compiler.render(parsed);
+  equal ( rendered, '<div class="image-wrapper">' + input + '</div>');
 
-  equal ( html, '<cite>test text</cite>' );
-});
-
-test('creating custom type renderers from constructor', function() {
-  var renderer = new ContentKit.HTMLRenderer({
-    typeRenderers: {
-      15: function(data) {
-        return '<cite>' + data.value + '</cite>';
-      }
-    }
+  compiler.renderer.willRenderType(ContentKit.Type.IMAGE.id, function(model) {
+    return 'derp';
   });
 
-  var compiler = new ContentKit.Compiler({
-    renderer: renderer
-  });
-
-  var html = compiler.render([
-    {
-      type: 15,
-      value: 'test text'
-    }
-  ]);
-
-  equal ( html, '<cite>test text</cite>' );
+  rendered = compiler.render(parsed);
+  equal ( rendered, 'derp');
 });

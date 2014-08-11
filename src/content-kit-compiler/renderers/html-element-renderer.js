@@ -1,7 +1,5 @@
-import { DefaultBlockTypeSet, DefaultMarkupTypeSet } from '../types/default-types';
-import { merge } from '../utils/object-utils';
-import { injectIntoString } from '../utils/string-utils';
-import { sumSparseArray } from '../utils/array-utils';
+import { injectIntoString } from '../../content-kit-utils/string-utils';
+import { sumSparseArray } from '../../content-kit-utils/array-utils';
 
 /**
  * Builds an opening html tag. i.e. '<a href="http://link.com/" rel="author">'
@@ -27,53 +25,33 @@ function createCloseTag(tagName) {
 }
 
 /**
- * @class HTMLRenderer
+ * @class HTMLElementRenderer
  * @constructor
  */
-function HTMLRenderer(options) {
-  var defaults = {
-    typeRenderers : {},
-    blockTypes    : DefaultBlockTypeSet,
-    markupTypes   : DefaultMarkupTypeSet
-  };
-  merge(this, defaults, options);
+function HTMLElementRenderer(options) {
+  options = options || {};
+  this.type = options.type;
+  this.markupTypes = options.markupTypes;
 }
 
 /**
  * @method render
- * @param data
- * @return String html
- */
-HTMLRenderer.prototype.render = function(data) {
-  var html = '',
-      len = data && data.length,
-      i, block, typeRenderer, blockHtml;
-
-  for (i = 0; i < len; i++) {
-    block = data[i];
-    typeRenderer = this.typeRenderers[block.type] || this.renderBlock;
-    blockHtml = typeRenderer.call(this, block);
-    if (blockHtml) { html += blockHtml; }
-  }
-  return html;
-};
-
-/**
- * @method renderBlock
- * @param block a block model
+ * @param model a block model
  * @return String html
  * Renders a block model into a HTML string.
  */
-HTMLRenderer.prototype.renderBlock = function(block) {
-  var type = this.blockTypes.findById(block.type),
-      html = '', tagName, selfClosing;
+HTMLElementRenderer.prototype.render = function(model) {
+  var html = '';
+  var type = this.type;
+  var tagName = type.tag;
+  var selfClosing = type.selfClosing;
 
-  if (type) {
-    tagName = type.tag;
-    selfClosing = type.selfClosing;
-    html += createOpeningTag(tagName, block.attributes, selfClosing);
-    if (!selfClosing) {
-      html += this.renderMarkup(block.value, block.markup);
+  if (tagName) {
+    html += createOpeningTag(tagName, model.attributes, selfClosing);
+  }
+  if (!selfClosing) {
+    html += this.renderMarkup(model.value, model.markup);
+    if (tagName) {
       html += createCloseTag(tagName);
     }
   }
@@ -87,7 +65,7 @@ HTMLRenderer.prototype.renderBlock = function(block) {
  * @return String html
  * Renders a markup model into a HTML string.
  */
-HTMLRenderer.prototype.renderMarkup = function(text, markups) {
+HTMLElementRenderer.prototype.renderMarkup = function(text, markups) {
   var parsedTagsIndexes = [],
       len = markups && markups.length, i;
 
@@ -117,15 +95,4 @@ HTMLRenderer.prototype.renderMarkup = function(text, markups) {
   return text;
 };
 
-/**
- * @method willRenderType
- * @param type type id
- * @param renderer the rendering function that returns a string of html
- * Registers custom rendering for a type
- */
-HTMLRenderer.prototype.willRenderType = function(type, renderer) {
-  this.typeRenderers[type] = renderer;
-};
-
-export default HTMLRenderer;
-
+export default HTMLElementRenderer;

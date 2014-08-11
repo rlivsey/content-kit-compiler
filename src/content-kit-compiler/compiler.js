@@ -2,7 +2,7 @@ import HTMLParser from './parsers/html-parser';
 import HTMLRenderer from './renderers/html-renderer';
 import Type from './types/type';
 import { DefaultBlockTypeSet, DefaultMarkupTypeSet } from './types/default-types';
-import { merge } from '../utils/object-utils';
+import { mergeWithOptions } from '../content-kit-utils/object-utils';
 
 /**
  * @class Compiler
@@ -19,7 +19,7 @@ function Compiler(options) {
     markupTypes      : DefaultMarkupTypeSet,
     includeTypeNames : false // true will output type_name: 'TEXT' etc. when parsing for easier debugging
   };
-  merge(this, defaults, options);
+  mergeWithOptions(this, defaults, options);
 
   // Reference the compiler settings
   parser.blockTypes  = renderer.blockTypes  = this.blockTypes;
@@ -51,7 +51,7 @@ Compiler.prototype.render = function(data) {
  */
 Compiler.prototype.registerBlockType = function(type) {
   if (type instanceof Type) {
-    this.blockTypes.addType(type);
+    return this.blockTypes.addType(type);
   }
 };
 
@@ -61,7 +61,7 @@ Compiler.prototype.registerBlockType = function(type) {
  */
 Compiler.prototype.registerMarkupType = function(type) {
   if (type instanceof Type) {
-    this.markupTypes.addType(type);
+    return this.markupTypes.addType(type);
   }
 };
 
