@@ -3,7 +3,7 @@
  * @version  0.1.0
  * @author   Garth Poitras <garth22@gmail.com> (http://garthpoitras.com/)
  * @license  MIT
- * Last modified: Aug 11, 2014
+ * Last modified: Aug 15, 2014
  */
 (function(window, document, undefined) {
 
@@ -282,6 +282,7 @@ define("content-kit-utils/string-utils",
     var RegExpTrimLeft    = /^\s+/;
     var RegExpWSChars     = /(\r\n|\n|\r|\t|\u00A0)/gm;
     var RegExpMultiWS     = /\s+/g;
+    var RegExpNonAlphaNum = /[^a-zA-Z\d]/g;
 
     /**
      * String.prototype.trim polyfill
@@ -303,7 +304,7 @@ define("content-kit-utils/string-utils",
      * Replaces non-alphanumeric chars with underscores
      */
     function underscore(string) {
-      return string ? (string + '').replace(/ /g, '_') : '';
+      return string ? trim(string + '').replace(RegExpNonAlphaNum, '_') : '';
     }
 
     /**
@@ -865,7 +866,8 @@ define("content-kit-compiler/renderers/html-renderer",
     function HTMLRenderer(options) {
       var defaults = {
         blockTypes    : DefaultBlockTypeSet,
-        markupTypes   : DefaultMarkupTypeSet
+        markupTypes   : DefaultMarkupTypeSet,
+        typeRenderers : {}
       };
       mergeWithOptions(this, defaults, options);
     }
@@ -876,12 +878,11 @@ define("content-kit-compiler/renderers/html-renderer",
      * @param renderer the rendering function that returns a string of html
      * Registers custom rendering hooks for a type
      */
-    var renderHooks = {};
     HTMLRenderer.prototype.willRenderType = function(type, renderer) {
       if ('number' !== typeof type) {
         type = type.id;
       }
-      renderHooks[type] = renderer;
+      this.typeRenderers[type] = renderer;
     };
 
     /**
@@ -911,7 +912,7 @@ define("content-kit-compiler/renderers/html-renderer",
       for (i = 0; i < len; i++) {
         item = model[i];
         renderer = this.rendererFor(item);
-        renderHook = renderHooks[item.type];
+        renderHook = this.typeRenderers[item.type];
         itemHtml = renderHook ? renderHook.call(renderer, item) : renderer.render(item);
         if (itemHtml) { html += itemHtml; }
       }

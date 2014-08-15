@@ -95,6 +95,6 @@
   // to your app that hang off `window`.
 
   "predef": [
-    "define" // es6 module loader
+    "define" // amd loader
   ]
 }
