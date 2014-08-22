@@ -3,7 +3,7 @@
  * @version  0.1.0
  * @author   Garth Poitras <garth22@gmail.com> (http://garthpoitras.com/)
  * @license  MIT
- * Last modified: Aug 15, 2014
+ * Last modified: Aug 22, 2014
  */
 (function(window, document, undefined) {
 
@@ -1084,7 +1084,7 @@ define("content-kit-compiler/renderers/embeds/youtube",
     var RegExVideoId = /.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#\&\?]*).*/;
 
     function getVideoIdFromUrl(url) {
-      var match = url.match(RegExVideoId);
+      var match = url && url.match(RegExVideoId);
       if (match && match[1].length === 11){
         return match[1];
       }
