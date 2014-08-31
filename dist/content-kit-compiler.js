@@ -3,7 +3,7 @@
  * @version  0.1.0
  * @author   Garth Poitras <garth22@gmail.com> (http://garthpoitras.com/)
  * @license  MIT
- * Last modified: Aug 22, 2014
+ * Last modified: Aug 31, 2014
  */
 (function(window, document, undefined) {
 
@@ -195,7 +195,7 @@ define("content-kit-utils/node-utils",
     /**
      * Extracts attributes of a `Node` to a hash of key/value pairs
      */
-    function attributesForNode(node /*,blacklist*/) {
+    function attributesForNode(node, blacklist) {
       var attrs = node.attributes;
       var len = attrs && attrs.length;
       var i, attr, name, hash;
@@ -203,8 +203,8 @@ define("content-kit-utils/node-utils",
       for (i = 0; i < len; i++) {
         attr = attrs[i];
         name = attr.name;
-        if (attr.specified) {
-          //if (blacklist && name in blacklist)) { continue; }
+        if (attr.specified && attr.value) {
+          if (blacklist && (name in blacklist)) { continue; }
           hash = hash || {};
           hash[name] = attr.value;
         }
@@ -677,7 +677,7 @@ define("content-kit-compiler/parsers/html-parser",
             type_name  : this.includeTypeNames && type.name,
             start      : startIndex,
             end        : endIndex,
-            attributes : attributesForNode(node)
+            attributes : attributesForNode(node, { style: 1 }) // filter out inline styles
           });
         }
       }

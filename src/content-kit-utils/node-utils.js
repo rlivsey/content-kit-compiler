@@ -50,7 +50,7 @@ function unwrapNode(node) {
 /**
  * Extracts attributes of a `Node` to a hash of key/value pairs
  */
-function attributesForNode(node /*,blacklist*/) {
+function attributesForNode(node, blacklist) {
   var attrs = node.attributes;
   var len = attrs && attrs.length;
   var i, attr, name, hash;
@@ -58,8 +58,8 @@ function attributesForNode(node /*,blacklist*/) {
   for (i = 0; i < len; i++) {
     attr = attrs[i];
     name = attr.name;
-    if (attr.specified) {
-      //if (blacklist && name in blacklist)) { continue; }
+    if (attr.specified && attr.value) {
+      if (blacklist && (name in blacklist)) { continue; }
       hash = hash || {};
       hash[name] = attr.value;
     }
