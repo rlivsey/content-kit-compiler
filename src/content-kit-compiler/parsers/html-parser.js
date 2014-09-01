@@ -6,7 +6,7 @@ import { toArray } from '../../content-kit-utils/array-utils';
 import { trim, trimLeft, sanitizeWhitespace } from '../../content-kit-utils/string-utils';
 import { createElement, DOMParsingNode, textOfNode, unwrapNode, attributesForNode } from '../../content-kit-utils/node-utils';
 
-var attributeBlacklist = { style: 1 }; // filter out inline styles
+var attributeBlacklist = { 'style': 1, 'class': 1 }; // filter out inline styles and classes
 
 /**
  * Gets the last block in the set or creates and return a default block if none exist yet.

@@ -10,6 +10,16 @@ test('render', function() {
   equal ( rendered, input );
 });
 
+test('render from innerHTML', function() {
+  var input = '<p>This is <i>italic</i>, this is <b>bold</b>, this is <i><b>both styles</b></i></p>';
+  var element = document.createElement('div');
+  element.innerHTML = input;
+  var parsed = compiler.parse(element.innerHTML);
+  var rendered = compiler.render(parsed);
+
+  equal ( rendered, input );
+});
+
 test('render with nested markup tags', function() {
   var input = '<p><i>Nested test <b>end</b></i>. <i><b>Nested</b> test start</i>. <i>Nested <b>test</b> middle</i>. <i><b>Nested test whole</b></i></p>';
   var parsed = compiler.parse(input);
@@ -37,7 +47,7 @@ test('render with nested unsupported markup tags', function() {
 });
 
 test('render with attributes', function() {
-  var input = '<p class="test"><a href="http://google.com/" rel="publisher">Link</a></p>';
+  var input = '<p class="test" tabIndex=1><a href="http://google.com/" rel="publisher">Link</a></p>';
   var parsed = compiler.parse(input);
   var rendered = compiler.render(parsed);
 
@@ -48,7 +58,7 @@ test('render with attributes', function() {
   div.innerHTML = rendered;
   var nodes = div.childNodes;
 
-  equal( nodes[0].className, 'test' );
+  equal( nodes[0].tabIndex, 1 );
   equal( nodes[0].firstChild.attributes.href.value, 'http://google.com/' );
   equal( nodes[0].firstChild.attributes.rel.value, 'publisher' );
 });

@@ -3,7 +3,7 @@
  * @version  0.1.0
  * @author   Garth Poitras <garth22@gmail.com> (http://garthpoitras.com/)
  * @license  MIT
- * Last modified: Aug 31, 2014
+ * Last modified: Sep 1, 2014
  */
 (function(window, document, undefined) {
 
@@ -73,7 +73,7 @@ define("content-kit-compiler/compiler",
     /**
      * @method parse
      * @param input
-     * @return Object
+     * @return Array
      */
     Compiler.prototype.parse = function(input) {
       return this.parser.parse(input);
@@ -82,10 +82,19 @@ define("content-kit-compiler/compiler",
     /**
      * @method render
      * @param data
-     * @return Object
+     * @return String
      */
     Compiler.prototype.render = function(data) {
       return this.renderer.render(data);
+    };
+
+    /**
+     * @method sanitize
+     * @param input
+     * @return String
+     */
+    Compiler.prototype.sanitize = function(input) {
+      return this.render(this.parse(input));
     };
 
     /**
@@ -520,7 +529,7 @@ define("content-kit-compiler/parsers/html-parser",
     var unwrapNode = __dependency7__.unwrapNode;
     var attributesForNode = __dependency7__.attributesForNode;
 
-    var attributeBlacklist = { style: 1 }; // filter out inline styles
+    var attributeBlacklist = { 'style': 1, 'class': 1 }; // filter out inline styles and classes
 
     /**
      * Gets the last block in the set or creates and return a default block if none exist yet.

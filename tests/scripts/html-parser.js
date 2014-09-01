@@ -256,18 +256,16 @@ test('markup: consistent order', function() {
 });
 
 test('attributes', function() {
-  var parsed = compiler.parse('<p class="test"><a href="http://google.com/" rel="nofollow">Link to google.com</a></p>');
+  var parsed = compiler.parse('<p><a href="http://google.com/" rel="nofollow">Link to google.com</a></p>');
 
-  equal ( parsed[0].attributes['class'], 'test' );
   equal ( parsed[0].markup[0].attributes.href, 'http://google.com/' );
   equal ( parsed[0].markup[0].attributes.rel,  'nofollow' );
 });
 
-test('attributes filters out inline styles', function() {
+test('attributes filters out inline styles and classes', function() {
   var parsed = compiler.parse('<p class="test" style="color:red;"><b style="line-height:11px">test</b></p>');
 
-  equal ( parsed[0].attributes['style'], undefined );
-  equal ( parsed[0].attributes['class'], 'test' );
+  equal ( parsed[0].attributes, undefined );
   equal ( parsed[0].markup[0].attributes, undefined );
 });
 
