@@ -263,6 +263,14 @@ test('attributes', function() {
   equal ( parsed[0].markup[0].attributes.rel,  'nofollow' );
 });
 
+test('attributes filters out inline styles', function() {
+  var parsed = compiler.parse('<p class="test" style="color:red;"><b style="line-height:11px">test</b></p>');
+
+  equal ( parsed[0].attributes['style'], undefined );
+  equal ( parsed[0].attributes['class'], 'test' );
+  equal ( parsed[0].markup[0].attributes, undefined );
+});
+
 test('blocks: TEXT', function() {
   var parsed = compiler.parse('<p>TEXT</p>');
   

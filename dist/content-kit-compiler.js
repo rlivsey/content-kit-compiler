@@ -520,6 +520,8 @@ define("content-kit-compiler/parsers/html-parser",
     var unwrapNode = __dependency7__.unwrapNode;
     var attributesForNode = __dependency7__.attributesForNode;
 
+    var attributeBlacklist = { style: 1 }; // filter out inline styles
+
     /**
      * Gets the last block in the set or creates and return a default block if none exist yet.
      */
@@ -609,7 +611,7 @@ define("content-kit-compiler/parsers/html-parser",
           type       : type.id,
           type_name  : this.includeTypeNames && type.name,
           value      : trim(textOfNode(node)),
-          attributes : attributesForNode(node),
+          attributes : attributesForNode(node, attributeBlacklist),
           markup     : this.parseBlockMarkup(node)
         });
       }
@@ -677,7 +679,7 @@ define("content-kit-compiler/parsers/html-parser",
             type_name  : this.includeTypeNames && type.name,
             start      : startIndex,
             end        : endIndex,
-            attributes : attributesForNode(node, { style: 1 }) // filter out inline styles
+            attributes : attributesForNode(node, attributeBlacklist)
           });
         }
       }
