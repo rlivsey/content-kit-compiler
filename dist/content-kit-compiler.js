@@ -3,22 +3,20 @@
  * @version  0.1.0
  * @author   Garth Poitras <garth22@gmail.com> (http://garthpoitras.com/)
  * @license  MIT
- * Last modified: Sep 1, 2014
+ * Last modified: Oct 3, 2014
  */
 (function(window, document, undefined) {
 
 define("content-kit",
-  ["./content-kit-compiler/types/type","./content-kit-compiler/models/block","./content-kit-compiler/models/text","./content-kit-compiler/models/image","./content-kit-compiler/models/embed","./content-kit-compiler/compiler","./content-kit-compiler/parsers/html-parser","./content-kit-compiler/renderers/html-renderer","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __exports__) {
+  ["./content-kit-compiler/types/type","./content-kit-compiler/models/block","./content-kit-compiler/models/embed","./content-kit-compiler/compiler","./content-kit-compiler/parsers/html-parser","./content-kit-compiler/renderers/html-renderer","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __exports__) {
     "use strict";
     var Type = __dependency1__["default"];
     var BlockModel = __dependency2__["default"];
-    var TextModel = __dependency3__["default"];
-    var ImageModel = __dependency4__["default"];
-    var EmbedModel = __dependency5__["default"];
-    var Compiler = __dependency6__["default"];
-    var HTMLParser = __dependency7__["default"];
-    var HTMLRenderer = __dependency8__["default"];
+    var EmbedModel = __dependency3__["default"];
+    var Compiler = __dependency4__["default"];
+    var HTMLParser = __dependency5__["default"];
+    var HTMLRenderer = __dependency6__["default"];
 
     /**
      * @namespace ContentKit
@@ -28,8 +26,6 @@ define("content-kit",
     var ContentKit = window.ContentKit || {};
     ContentKit.Type = Type;
     ContentKit.BlockModel = BlockModel;
-    ContentKit.TextModel = TextModel;
-    ContentKit.ImageModel = ImageModel;
     ContentKit.EmbedModel = EmbedModel;
     ContentKit.Compiler = Compiler;
     ContentKit.HTMLParser = HTMLParser;
@@ -81,20 +77,29 @@ define("content-kit-compiler/compiler",
 
     /**
      * @method render
-     * @param data
+     * @param model
      * @return String
      */
-    Compiler.prototype.render = function(data) {
-      return this.renderer.render(data);
+    Compiler.prototype.render = function(model) {
+      return this.renderer.render(model);
     };
 
     /**
-     * @method sanitize
+     * @method rerender
      * @param input
      * @return String
      */
-    Compiler.prototype.sanitize = function(input) {
+    Compiler.prototype.rerender = function(input) {
       return this.render(this.parse(input));
+    };
+
+    /**
+     * @method reparse
+     * @param model
+     * @return String
+     */
+    Compiler.prototype.reparse = function(model) {
+      return this.parse(this.render(model));
     };
 
     /**
@@ -258,25 +263,14 @@ define("content-kit-utils/object-utils",
      * Prototype inheritance helper
      */
     function inherit(Subclass, Superclass) {
-      if (typeof Object.create === 'function') {
-        Subclass._super = Superclass;
-        Subclass.prototype = Object.create(Superclass.prototype, {
-          constructor: {
-            value: Subclass,
-            enumerable: false,
-            writable: true,
-            configurable: true
-          }
-        });
-      } else {
-        for (var key in Superclass) {
-          if (Superclass.hasOwnProperty(key)) {
-            Subclass[key] = Superclass[key];
-          }
+      for (var key in Superclass) {
+        if (Superclass.hasOwnProperty(key)) {
+          Subclass[key] = Superclass[key];
         }
-        Subclass.prototype = new Superclass();
-        Subclass.constructor = Subclass;
       }
+      Subclass.prototype = new Superclass();
+      Subclass.constructor = Subclass;
+      Subclass._super = Superclass;
     }
 
     __exports__.mergeWithOptions = mergeWithOptions;
@@ -337,10 +331,11 @@ define("content-kit-utils/string-utils",
     __exports__.injectIntoString = injectIntoString;
   });
 define("content-kit-compiler/models/block",
-  ["./model","exports"],
-  function(__dependency1__, __exports__) {
+  ["./model","../../content-kit-utils/object-utils","exports"],
+  function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
     var Model = __dependency1__["default"];
+    var inherit = __dependency2__.inherit;
 
     /**
      * Ensures block markups at the same index are always in a specific order.
@@ -367,6 +362,8 @@ define("content-kit-compiler/models/block",
       this.value = options.value || '';
       this.markup = sortBlockMarkups(options.markup || []);
     }
+
+    inherit(BlockModel, Model);
 
     __exports__["default"] = BlockModel;
   });
@@ -418,36 +415,12 @@ define("content-kit-compiler/models/embed",
 
     __exports__["default"] = EmbedModel;
   });
-define("content-kit-compiler/models/image",
-  ["./block","../types/type","exports"],
+define("content-kit-compiler/models/markup",
+  ["./model","../../content-kit-utils/object-utils","exports"],
   function(__dependency1__, __dependency2__, __exports__) {
     "use strict";
-    var BlockModel = __dependency1__["default"];
-    var Type = __dependency2__["default"];
-
-    /**
-     * @class ImageModel
-     * @constructor
-     * @extends BlockModel
-     * A simple BlockModel subclass representing an image
-     */
-    function ImageModel(options) {
-      options = options || {};
-      options.type = Type.IMAGE.id;
-      options.type_name = Type.IMAGE.name;
-      if (options.src) {
-        options.attributes = { src: options.src };
-      }
-      BlockModel.call(this, options);
-    }
-
-    __exports__["default"] = ImageModel;
-  });
-define("content-kit-compiler/models/markup",
-  ["./model","exports"],
-  function(__dependency1__, __exports__) {
-    "use strict";
     var Model = __dependency1__["default"];
+    var inherit = __dependency2__.inherit;
 
     /**
      * @class MarkupModel
@@ -460,6 +433,8 @@ define("content-kit-compiler/models/markup",
       this.start = options.start || 0;
       this.end = options.end || 0;
     }
+
+    inherit(MarkupModel, Model);
 
     __exports__["default"] = MarkupModel;
   });
@@ -486,29 +461,20 @@ define("content-kit-compiler/models/model",
       }
     }
 
-    __exports__["default"] = Model;
-  });
-define("content-kit-compiler/models/text",
-  ["./block","../types/type","exports"],
-  function(__dependency1__, __dependency2__, __exports__) {
-    "use strict";
-    var BlockModel = __dependency1__["default"];
-    var Type = __dependency2__["default"];
-
     /**
-     * @class TextModel
-     * @constructor
-     * @extends BlockModel
-     * A simple BlockModel subclass representing a paragraph of text
+     * @method createWithType
+     * @static
+     * @param type Type
+     * @param options Object
      */
-    function TextModel(options) {
+    Model.createWithType = function(type, options) {
       options = options || {};
-      options.type = Type.TEXT.id;
-      options.type_name = Type.TEXT.name;
-      BlockModel.call(this, options);
-    }
+      options.type = type.id;
+      options.type_name = type.name;
+      return new this(options);
+    };
 
-    __exports__["default"] = TextModel;
+    __exports__["default"] = Model;
   });
 define("content-kit-compiler/parsers/html-parser",
   ["../models/block","../models/markup","../types/default-types","../../content-kit-utils/object-utils","../../content-kit-utils/array-utils","../../content-kit-utils/string-utils","../../content-kit-utils/node-utils","exports"],

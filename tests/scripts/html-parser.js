@@ -1,4 +1,4 @@
-module('html-parser');
+module('HTMLParser');
 
 var compiler = new ContentKit.Compiler();
 var Type = ContentKit.Type;

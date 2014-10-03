@@ -1,4 +1,4 @@
-module('compiler');
+module('Compiler');
 
 
 test('can create a Compiler', function() {

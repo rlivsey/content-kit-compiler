@@ -1,4 +1,4 @@
-module('html-renderer');
+module('HTMLRenderer');
 
 var compiler = new ContentKit.Compiler();
 
