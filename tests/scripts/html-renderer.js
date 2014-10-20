@@ -3,7 +3,7 @@ module('HTMLRenderer');
 var compiler = new ContentKit.Compiler();
 
 test('render', function() {
-  var input = '<p>This is <i>italic</i>, this is <b>bold</b>, this is <i><b>both styles</b></i></p>';
+  var input = '<p>This is <em>italic</em>, this is <strong>bold</strong>, this is <em><strong>both styles</strong></em></p>';
   var parsed = compiler.parse(input);
   var rendered = compiler.render(parsed);
 
@@ -11,7 +11,7 @@ test('render', function() {
 });
 
 test('render from innerHTML', function() {
-  var input = '<p>This is <i>italic</i>, this is <b>bold</b>, this is <i><b>both styles</b></i></p>';
+  var input = '<p>This is <em>italic</em>, this is <strong>bold</strong>, this is <em><strong>both styles</strong></em></p>';
   var element = document.createElement('div');
   element.innerHTML = input;
   var parsed = compiler.parse(element.innerHTML);
@@ -21,7 +21,7 @@ test('render from innerHTML', function() {
 });
 
 test('render with nested markup tags', function() {
-  var input = '<p><i>Nested test <b>end</b></i>. <i><b>Nested</b> test start</i>. <i>Nested <b>test</b> middle</i>. <i><b>Nested test whole</b></i></p>';
+  var input = '<p><em>Nested test <strong>end</strong></em>. <em><strong>Nested</strong> test start</em>. <em>Nested <strong>test</strong> middle</em>. <em><strong>Nested test whole</strong></em></p>';
   var parsed = compiler.parse(input);
   var rendered = compiler.render(parsed);
 
@@ -29,8 +29,8 @@ test('render with nested markup tags', function() {
 });
 
 test('render with wrapped unsupported markup tags', function() {
-  var input = '<p><span>Nested test <b>end</b></span>. <span><b>Nested</b> test start</span>. <span>Nested <b>test</b> middle</span>. <span><b>Nested test whole</b></span></p>';
-  var correctOutput = '<p>Nested test <b>end</b>. <b>Nested</b> test start. Nested <b>test</b> middle. <b>Nested test whole</b></p>';
+  var input = '<p><span>Nested test <strong>end</strong></span>. <span><strong>Nested</strong> test start</span>. <span>Nested <strong>test</strong> middle</span>. <span><strong>Nested test whole</strong></span></p>';
+  var correctOutput = '<p>Nested test <strong>end</strong>. <strong>Nested</strong> test start. Nested <strong>test</strong> middle. <strong>Nested test whole</strong></p>';
   var parsed = compiler.parse(input);
   var rendered = compiler.render(parsed);
 
@@ -38,8 +38,8 @@ test('render with wrapped unsupported markup tags', function() {
 });
 
 test('render with nested unsupported markup tags', function() {
-  var input = '<p><b>Nested test <span>end</span></b>. <b><span>Nested</span> test start</b>. <b>Nested <span>test</span> middle</b>. <b><span>Nested test whole</span></b></p>';
-  var correctOutput = '<p><b>Nested test end</b>. <b>Nested test start</b>. <b>Nested test middle</b>. <b>Nested test whole</b></p>';
+  var input = '<p><strong>Nested test <span>end</span></strong>. <strong><span>Nested</span> test start</strong>. <strong>Nested <span>test</span> middle</strong>. <strong><span>Nested test whole</span></strong></p>';
+  var correctOutput = '<p><strong>Nested test end</strong>. <strong>Nested test start</strong>. <strong>Nested test middle</strong>. <strong>Nested test whole</strong></p>';
   var parsed = compiler.parse(input);
   var rendered = compiler.render(parsed);
 
@@ -64,7 +64,7 @@ test('render with attributes', function() {
 });
 
 test('render elements', function() {
-  var input = '<h2>The Title</h2><h3>The Subtitle</h3><p>Paragraph <b>1</b></p><p>Paragraph <i><b>2</b></i></p><p>Paragraph with a <a href="http://google.com/">link</a>.</p><blockquote>Quote</blockquote>';
+  var input = '<h2>The Title</h2><h3>The Subtitle</h3><p>Paragraph <strong>1</strong></p><p>Paragraph <em><strong>2</strong></em></p><p>Paragraph with a <a href="http://google.com/">link</a>.</p><blockquote>Quote</blockquote>';
   var parsed = compiler.parse(input);
   var rendered = compiler.render(parsed);
   

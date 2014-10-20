@@ -16,6 +16,9 @@ function Type(options) {
     if (options.tag) {
       this.tag = options.tag.toLowerCase();
       this.selfClosing = /^(br|img|hr|meta|link|embed)$/i.test(this.tag);
+      if (options.mappedTags) {
+        this.mappedTags = options.mappedTags;
+      }
     }
 
     // Register the type as constant

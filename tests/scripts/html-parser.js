@@ -15,7 +15,7 @@ test('propertly handle empty content', function() {
 });
 
 test('stray markup without a block should create a default block', function() {
-  var parsed = compiler.parse('<b>text</b>');
+  var parsed = compiler.parse('<strong>text</strong>');
 
   equal ( parsed.length, 1 );
   equal ( parsed[0].value, 'text' );
@@ -25,7 +25,7 @@ test('stray markup without a block should create a default block', function() {
   equal ( parsed[0].markup[0].start, 0 );
   equal ( parsed[0].markup[0].end, 4 );
 
-  parsed = compiler.parse('<b><i>stray</i> markup tags</b>.');
+  parsed = compiler.parse('<strong><em>stray</em> markup tags</strong>.');
   equal ( parsed.length, 1 );
   equal ( parsed[0].value, 'stray markup tags.' );
   equal ( parsed[0].type, Type.PARAGRAPH.id );
@@ -47,7 +47,7 @@ test('stray text without a block should create a default block', function() {
 });
 
 test('stray content gets appended to previous block element', function() {
-  var parsed = compiler.parse('start <b>bold</b> end');
+  var parsed = compiler.parse('start <strong>bold</strong> end');
 
   equal ( parsed.length, 1 );
   equal ( parsed[0].value, 'start bold end' );
@@ -59,7 +59,7 @@ test('stray content gets appended to previous block element', function() {
 });
 
 test('markup: bold', function() {
-  var parsed = compiler.parse('<b>text</b>');
+  var parsed = compiler.parse('<strong>text</strong>');
   equal ( parsed.length, 1 );
   equal ( parsed[0].value, 'text' );
   equal ( parsed[0].markup.length, 1 );
@@ -69,7 +69,7 @@ test('markup: bold', function() {
 });
 
 test('markup: italic', function() {
-  var parsed = compiler.parse('italic <i>text</i>');
+  var parsed = compiler.parse('italic <em>text</em>');
   equal ( parsed.length, 1 );
   equal ( parsed[0].value, 'italic text' );
   equal ( parsed[0].markup.length, 1 );
@@ -143,7 +143,7 @@ test('markup: list items', function() {
 });
 
 test('markup: nested tags', function() {
-  var parsed = compiler.parse('<p><i><b>Double.</b></i> <b><i>Double staggered</i> start.</b> <b>Double <i>staggered end.</i></b> <b>Double <i>staggered</i> middle.</b></p>');
+  var parsed = compiler.parse('<p><em><strong>Double.</strong></em> <strong><em>Double staggered</em> start.</strong> <strong>Double <em>staggered end.</em></strong> <strong>Double <em>staggered</em> middle.</strong></p>');
 
   equal ( parsed.length, 1 );
   equal ( parsed[0].value, 'Double. Double staggered start. Double staggered end. Double staggered middle.' );
@@ -183,7 +183,7 @@ test('markup: nested tags', function() {
 });
 
 test('markup: nested/unsupported tags', function() {
-  var parsed = compiler.parse('<p>Test one <b>two</b> <i><b>three</b></i> <span>four</span> <span><b>five</b></span> <b><span>six</span></b> <b></b><span></span><b><span></span></b><span><b></b></span>seven</p>');
+  var parsed = compiler.parse('<p>Test one <strong>two</strong> <em><strong>three</strong></em> <span>four</span> <span><strong>five</strong></span> <strong><span>six</span></strong> <strong></strong><span></span><strong><span></span></strong><span><strong></strong></span>seven</p>');
 
   equal ( parsed.length, 1 );
   equal ( parsed[0].type, Type.PARAGRAPH.id );
@@ -212,7 +212,7 @@ test('markup: nested/unsupported tags', function() {
 });
 
 test('markup: self-closing tags with nesting', function() {
-  var input = '<p><b>Blah <br/>blah</b> <br/>blah</p>';
+  var input = '<p><strong>Blah <br/>blah</strong> <br/>blah</p>';
   var parsed = compiler.parse(input);
 
   equal ( parsed[0].value, 'Blah blah blah' );
@@ -233,9 +233,9 @@ test('markup: self-closing tags with nesting', function() {
 
 test('markup: whitespace', function() {
   var parsed = compiler.parse('<ul>   ' +
-                              '\t <li>Item <i>1</i></li> &nbsp;\n' +
-                              '   <li><b>Item 2</b></li>\r\n &nbsp; ' +
-                              '\t\t<li><b>Item</b> 3</li>\r' +
+                              '\t <li>Item <em>1</em></li> &nbsp;\n' +
+                              '   <li><strong>Item 2</strong></li>\r\n &nbsp; ' +
+                              '\t\t<li><strong>Item</strong> 3</li>\r' +
                               '</ul>');
   equal ( parsed.length, 1 );
   equal ( parsed[0].value, 'Item 1 Item 2 Item 3' );
@@ -263,8 +263,8 @@ test('markup: whitespace', function() {
 });
 
 test('markup: consistent order', function() {
-  var correctlyOrdered = compiler.parse('<p><a><b>text</b></a></p>');
-  var incorrectlyOrdered = compiler.parse('<p><b><a>text</a></b></p>');
+  var correctlyOrdered = compiler.parse('<p><a><strong>text</strong></a></p>');
+  var incorrectlyOrdered = compiler.parse('<p><strong><a>text</a></strong></p>');
 
   equal( compiler.render(correctlyOrdered),  compiler.render(incorrectlyOrdered) );
 });
@@ -277,7 +277,7 @@ test('attributes', function() {
 });
 
 test('attributes filters out inline styles and classes', function() {
-  var parsed = compiler.parse('<p class="test" style="color:red;"><b style="line-height:11px">test</b></p>');
+  var parsed = compiler.parse('<p class="test" style="color:red;"><b style="line-height:11px">test</strong></p>');
 
   equal ( parsed[0].attributes, undefined );
   equal ( parsed[0].markup[0].attributes, undefined );
@@ -334,7 +334,7 @@ test('blocks: ordered list', function() {
 });
 
 test('blocks: mixed', function() {
-  var input = '<h2>The Title</h2><h3>The Subtitle</h3><p>TEXT <b>1</b></p><p>TEXT <b><i>2</i></b></p><p>TEXT with a <a href="http://google.com/">link</a>.</p><blockquote>Quote</blockquote>';
+  var input = '<h2>The Title</h2><h3>The Subtitle</h3><p>TEXT <strong>1</strong></p><p>TEXT <strong><em>2</em></strong></p><p>TEXT with a <a href="http://google.com/">link</a>.</p><blockquote>Quote</blockquote>';
   var parsed = compiler.parse(input);
   
   equal ( parsed.length, 6 );
@@ -353,4 +353,17 @@ test('blocks: self-closing', function() {
   equal ( parsed.length, 2 );
   equal ( parsed[0].type, Type.IMAGE.id );
   equal ( parsed[0].attributes.src, 'http://domain.com/test.png' );
+});
+
+test('converts tags to mapped values', function() {
+  var input = '<b><i>Converts</i> tags</b>.';
+  var parsed = compiler.parse(input);
+
+  equal ( parsed.length, 1 );
+  equal ( parsed[0].value, 'Converts tags.');
+  equal ( parsed[0].markup.length, 2);
+  equal ( parsed[0].markup[0].type, Type.BOLD.id );
+  equal ( parsed[0].markup[0].start, 0 );
+  equal ( parsed[0].markup[0].end, 13 );
+  equal ( parsed[0].markup[1].type, Type.ITALIC.id );
 });

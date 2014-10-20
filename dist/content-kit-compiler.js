@@ -922,8 +922,8 @@ define("content-kit-compiler/types/default-types",
      * Default supported markup types
      */
     var DefaultMarkupTypeSet = new TypeSet([
-      new Type({ tag: 'b', name: 'bold' }),
-      new Type({ tag: 'i', name: 'italic' }),
+      new Type({ tag: 'strong', name: 'bold', mappedTags: ['b'] }),
+      new Type({ tag: 'em', name: 'italic', mappedTags: ['i'] }),
       new Type({ tag: 'u', name: 'underline' }),
       new Type({ tag: 'a', name: 'link' }),
       new Type({ tag: 'br', name: 'break' }),
@@ -972,6 +972,11 @@ define("content-kit-compiler/types/type-set",
           this.idLookup[type.id] = type;
           if (type.tag) {
             this.tagLookup[type.tag] = type;
+            if (type.mappedTags) {
+              for (var i = 0, len = type.mappedTags.length; i < len; i++) {
+                this.tagLookup[type.mappedTags[i]] = type;
+              }
+            }
           }
           return type;
         }
@@ -1025,6 +1030,9 @@ define("content-kit-compiler/types/type",
         if (options.tag) {
           this.tag = options.tag.toLowerCase();
           this.selfClosing = /^(br|img|hr|meta|link|embed)$/i.test(this.tag);
+          if (options.mappedTags) {
+            this.mappedTags = options.mappedTags;
+          }
         }
 
         // Register the type as constant
