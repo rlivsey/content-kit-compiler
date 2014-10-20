@@ -5,14 +5,14 @@ import Type from './type';
  * Default supported block types
  */
 var DefaultBlockTypeSet = new TypeSet([
-  new Type({ tag: 'p', name: 'text' }),
+  new Type({ tag: 'p', name: 'paragraph' }),
   new Type({ tag: 'h2', name: 'heading' }),
   new Type({ tag: 'h3', name: 'subheading' }),
-  new Type({ tag: 'img', name: 'image' }),
+  new Type({ tag: 'img', name: 'image', isTextType: false }),
   new Type({ tag: 'blockquote', name: 'quote' }),
   new Type({ tag: 'ul', name: 'list' }),
   new Type({ tag: 'ol', name: 'ordered list' }),
-  new Type({ name: 'embed' })
+  new Type({ name: 'embed', isTextType: false })
 ]);
 
 /**

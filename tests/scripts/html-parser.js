@@ -19,9 +19,23 @@ test('stray markup without a block should create a default block', function() {
 
   equal ( parsed.length, 1 );
   equal ( parsed[0].value, 'text' );
-  equal ( parsed[0].type, Type.TEXT.id );
+  equal ( parsed[0].type, Type.PARAGRAPH.id );
   equal ( parsed[0].markup.length, 1);
   equal ( parsed[0].markup[0].type, Type.BOLD.id );
+  equal ( parsed[0].markup[0].start, 0 );
+  equal ( parsed[0].markup[0].end, 4 );
+
+  parsed = compiler.parse('<b><i>stray</i> markup tags</b>.');
+  equal ( parsed.length, 1 );
+  equal ( parsed[0].value, 'stray markup tags.' );
+  equal ( parsed[0].type, Type.PARAGRAPH.id );
+  equal ( parsed[0].markup.length, 2);
+  equal ( parsed[0].markup[0].type, Type.BOLD.id );
+  equal ( parsed[0].markup[0].start, 0 );
+  equal ( parsed[0].markup[0].end, 17 );
+  equal ( parsed[0].markup[1].type, Type.ITALIC.id );
+  equal ( parsed[0].markup[1].start, 0 );
+  equal ( parsed[0].markup[1].end, 5 );
 });
 
 test('stray text without a block should create a default block', function() {
@@ -29,7 +43,7 @@ test('stray text without a block should create a default block', function() {
 
   equal ( parsed.length, 1 );
   equal ( parsed[0].value, 'text' );
-  equal ( parsed[0].type, Type.TEXT.id );
+  equal ( parsed[0].type, Type.PARAGRAPH.id );
 });
 
 test('stray content gets appended to previous block element', function() {
@@ -37,7 +51,7 @@ test('stray content gets appended to previous block element', function() {
 
   equal ( parsed.length, 1 );
   equal ( parsed[0].value, 'start bold end' );
-  equal ( parsed[0].type, Type.TEXT.id );
+  equal ( parsed[0].type, Type.PARAGRAPH.id );
   equal ( parsed[0].markup.length, 1);
   equal ( parsed[0].markup[0].type, Type.BOLD.id );
   equal ( parsed[0].markup[0].start, 6);
@@ -172,7 +186,7 @@ test('markup: nested/unsupported tags', function() {
   var parsed = compiler.parse('<p>Test one <b>two</b> <i><b>three</b></i> <span>four</span> <span><b>five</b></span> <b><span>six</span></b> <b></b><span></span><b><span></span></b><span><b></b></span>seven</p>');
 
   equal ( parsed.length, 1 );
-  equal ( parsed[0].type, Type.TEXT.id );
+  equal ( parsed[0].type, Type.PARAGRAPH.id );
   equal ( parsed[0].value, 'Test one two three four five six seven' );
   equal ( parsed[0].markup.length, 5 );
 
@@ -269,11 +283,11 @@ test('attributes filters out inline styles and classes', function() {
   equal ( parsed[0].markup[0].attributes, undefined );
 });
 
-test('blocks: TEXT', function() {
+test('blocks: paragraph', function() {
   var parsed = compiler.parse('<p>TEXT</p>');
   
   equal ( parsed.length, 1 );
-  equal ( parsed[0].type, Type.TEXT.id );
+  equal ( parsed[0].type, Type.PARAGRAPH.id );
 });
 
 test('blocks: heading', function() {
@@ -326,9 +340,9 @@ test('blocks: mixed', function() {
   equal ( parsed.length, 6 );
   equal ( parsed[0].type, Type.HEADING.id );
   equal ( parsed[1].type, Type.SUBHEADING.id );
-  equal ( parsed[2].type, Type.TEXT.id );
-  equal ( parsed[3].type, Type.TEXT.id );
-  equal ( parsed[4].type, Type.TEXT.id );
+  equal ( parsed[2].type, Type.PARAGRAPH.id );
+  equal ( parsed[3].type, Type.PARAGRAPH.id );
+  equal ( parsed[4].type, Type.PARAGRAPH.id );
   equal ( parsed[5].type, Type.QUOTE.id );
 });
 

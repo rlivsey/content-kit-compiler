@@ -8,6 +8,8 @@ import { underscore } from '../../content-kit-utils/string-utils';
 function Type(options) {
   if (options) {
     this.name = underscore(options.name || options.tag).toUpperCase();
+    this.isTextType = options.isTextType !== undefined ? options.isTextType : true;
+
     if (options.id !== undefined) {
       this.id = options.id;
     }
