@@ -16,6 +16,7 @@ function EmbedModel(options) {
     attributes: {}
   });
 
+  // Massage the oEmbed data
   var attributes = this.attributes;
   var embedType = options.type;
   var providerName = options.provider_name;
@@ -35,7 +36,7 @@ function EmbedModel(options) {
     attributes.thumbnail = embedThumbnail;
   }
 
-  if (embedHtml && embedType === 'rich') {
+  if (embedHtml && (embedType === 'rich' || embedType === 'video')) {
     attributes.html = embedHtml;
   }
 }

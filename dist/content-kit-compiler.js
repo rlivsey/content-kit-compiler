@@ -3,7 +3,7 @@
  * @version  0.1.0
  * @author   Garth Poitras <garth22@gmail.com> (http://garthpoitras.com/)
  * @license  MIT
- * Last modified: Oct 20, 2014
+ * Last modified: Oct 25, 2014
  */
 (function(window, document, undefined) {
 
@@ -391,6 +391,7 @@ define("content-kit-compiler/models/embed",
         attributes: {}
       });
 
+      // Massage the oEmbed data
       var attributes = this.attributes;
       var embedType = options.type;
       var providerName = options.provider_name;
@@ -410,7 +411,7 @@ define("content-kit-compiler/models/embed",
         attributes.thumbnail = embedThumbnail;
       }
 
-      if (embedHtml && embedType === 'rich') {
+      if (embedHtml && (embedType === 'rich' || embedType === 'video')) {
         attributes.html = embedHtml;
       }
     }
@@ -764,76 +765,15 @@ define("content-kit-compiler/renderers/html-element-renderer",
 
     __exports__["default"] = HTMLElementRenderer;
   });
-define("content-kit-compiler/renderers/html-embed-renderer",
-  ["./embeds/youtube","./embeds/twitter","./embeds/instagram","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __exports__) {
-    "use strict";
-    var YouTubeRenderer = __dependency1__["default"];
-    var TwitterRenderer = __dependency2__["default"];
-    var InstagramRenderer = __dependency3__["default"];
-
-    /**
-     * A dictionary of supported embed services
-     */
-    var services = {
-      YOUTUBE : {
-        id: 1,
-        renderer: new YouTubeRenderer()
-      },
-      TWITTER : {
-        id: 2,
-        renderer: new TwitterRenderer()
-      },
-      INSTAGRAM : {
-        id: 3,
-        renderer: new InstagramRenderer()
-      }
-    };
-
-    /**
-     * @class EmbedRenderer
-     * @constructor
-     */
-    function EmbedRenderer() {}
-
-    /**
-     * @method render
-     * @param model
-     * @return String html
-     */
-    EmbedRenderer.prototype.render = function(model) {
-      var renderer = this.rendererFor(model);
-      if (renderer) {
-        return renderer.render(model);
-      }
-      var attrs = model.attributes;
-      return attrs && attrs.html || '';
-    };
-
-    /**
-     * @method rendererFor
-     * @param model
-     * @return service renderer
-     */
-    EmbedRenderer.prototype.rendererFor = function(model) {
-      var provider = model.attributes.provider_name;
-      var providerKey = provider && provider.toUpperCase();
-      var service = services[providerKey];
-      return service && service.renderer;
-    };
-
-    __exports__["default"] = EmbedRenderer;
-  });
 define("content-kit-compiler/renderers/html-renderer",
-  ["../types/type","./html-element-renderer","./html-embed-renderer","../types/default-types","../../content-kit-utils/object-utils","exports"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __exports__) {
+  ["../types/type","./html-element-renderer","../types/default-types","../../content-kit-utils/object-utils","exports"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __exports__) {
     "use strict";
     var Type = __dependency1__["default"];
     var HTMLElementRenderer = __dependency2__["default"];
-    var HTMLEmbedRenderer = __dependency3__["default"];
-    var DefaultBlockTypeSet = __dependency4__.DefaultBlockTypeSet;
-    var DefaultMarkupTypeSet = __dependency4__.DefaultMarkupTypeSet;
-    var mergeWithOptions = __dependency5__.mergeWithOptions;
+    var DefaultBlockTypeSet = __dependency3__.DefaultBlockTypeSet;
+    var DefaultMarkupTypeSet = __dependency3__.DefaultMarkupTypeSet;
+    var mergeWithOptions = __dependency4__.mergeWithOptions;
 
     /**
      * @class HTMLRenderer
@@ -869,8 +809,9 @@ define("content-kit-compiler/renderers/html-renderer",
      */
     HTMLRenderer.prototype.rendererFor = function(model) {
       var type = this.blockTypes.findById(model.type);
+      var attrs = model.attributes;
       if (type === Type.EMBED) {
-        return new HTMLEmbedRenderer();
+        return attrs && attrs.html || '';
       }
       return new HTMLElementRenderer({ type: type, markupTypes: this.markupTypes });
     };
@@ -1041,52 +982,4 @@ define("content-kit-compiler/types/type",
     }
 
     __exports__["default"] = Type;
-  });
-define("content-kit-compiler/renderers/embeds/instagram",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-
-    function InstagramRenderer() {}
-    InstagramRenderer.prototype.render = function(model) {
-      return '<img src="' + model.attributes.url + '"/>';
-    };
-
-    __exports__["default"] = InstagramRenderer;
-  });
-define("content-kit-compiler/renderers/embeds/twitter",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-
-    function TwitterRenderer() {}
-    TwitterRenderer.prototype.render = function(model) {
-      return '<blockquote class="twitter-tweet"><a href="' + model.attributes.url + '"></a></blockquote>';
-    };
-
-    __exports__["default"] = TwitterRenderer;
-  });
-define("content-kit-compiler/renderers/embeds/youtube",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-
-    var RegExVideoId = /.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#\&\?]*).*/;
-
-    function getVideoIdFromUrl(url) {
-      var match = url && url.match(RegExVideoId);
-      if (match && match[1].length === 11){
-        return match[1];
-      }
-      return null;
-    }
-
-    function YouTubeRenderer() {}
-    YouTubeRenderer.prototype.render = function(model) {
-      var videoId = getVideoIdFromUrl(model.attributes.url);
-      var embedUrl = 'http://www.youtube.com/embed/' + videoId + '?controls=2&showinfo=0&color=white&theme=light';
-      return '<iframe width="100%" height="400" frameborder="0" allowfullscreen src="' + embedUrl + '"></iframe>';
-    };
-
-    __exports__["default"] = YouTubeRenderer;
   });}(this, document));

@@ -1,6 +1,5 @@
 import Type from '../types/type';
 import HTMLElementRenderer from './html-element-renderer';
-import HTMLEmbedRenderer from './html-embed-renderer';
 import { DefaultBlockTypeSet, DefaultMarkupTypeSet } from '../types/default-types';
 import { mergeWithOptions } from '../../content-kit-utils/object-utils';
 
@@ -38,8 +37,9 @@ HTMLRenderer.prototype.willRenderType = function(type, renderer) {
  */
 HTMLRenderer.prototype.rendererFor = function(model) {
   var type = this.blockTypes.findById(model.type);
+  var attrs = model.attributes;
   if (type === Type.EMBED) {
-    return new HTMLEmbedRenderer();
+    return attrs && attrs.html || '';
   }
   return new HTMLElementRenderer({ type: type, markupTypes: this.markupTypes });
 };
