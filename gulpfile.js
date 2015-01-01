@@ -3,15 +3,13 @@ var jshint = require('gulp-jshint');
 var qunit  = require('gulp-qunit');
 var concat = require('gulp-concat');
 var header = require('gulp-header');
-var footer = require('gulp-footer');
 var util   = require('gulp-util');
 var gulpOpen = require('gulp-open');
-var es6ModuleTranspiler = require('gulp-es6-module-transpiler');
+var transpile = require('gulp-es6-module-transpiler');
 
 var pkg = require('./package.json');
 
 var jsSrc = [
-  './src/content-kit.js',
   './src/**/*.js'
 ];
 
@@ -30,12 +28,6 @@ var banner = ['/*!',
               ' */',
               ''].join('\n'); 
 
-var iifeHeader = ['(function(window, document, undefined) {',
-                  '',
-                  ''].join('\n'); 
-var iifeFooter = ['}(this, document));',
-                  ''].join('\n'); 
-
 gulp.task('lint', function() {
   gulp.src(jsSrc)
       .pipe(jshint('.jshintrc'))
@@ -50,11 +42,9 @@ gulp.task('lint-built', ['build'], function() {
 
 gulp.task('build', ['lint'], function() {
   gulp.src(jsSrc)
-      .pipe(es6ModuleTranspiler({ type: 'amd' }))
+      .pipe(transpile({ format: 'bundle' }))
       .pipe(concat(distName))
-      .pipe(header(iifeHeader))
       .pipe(header(banner, { pkg : pkg } ))
-      .pipe(footer(iifeFooter))
       .pipe(gulp.dest(distDest));
 });
 
@@ -73,4 +63,4 @@ gulp.task('watch', function() {
 });
 
 
-gulp.task('default', ['lint', 'build', 'lint-built', 'test']);
+gulp.task('default', ['lint', 'build', /*'lint-built',*/ 'test']);
