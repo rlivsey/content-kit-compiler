@@ -1,8 +1,8 @@
 {
-  "name": "ContentKit-Compiler",
+  "name": "content-kit-compiler",
   "version": "0.1.0",
-  "description": "Parses HTML to ContentKit's JSON schema and renders back to HTML.",
-  "repository": "https://github.com/ContentKit/content-kit-compiler",
+  "description": "Compiler for content-kit suite: parses markup to json and renders json to markup",
+  "repository": "https://github.com/bustlelabs/content-kit-compiler",
   "main": "dist/content-kit-compiler.js",
   "scripts": {
     "test": "gulp test"
