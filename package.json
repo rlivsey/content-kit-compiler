@@ -17,6 +17,7 @@
   "author": "Garth Poitras <garth22@gmail.com> (http://garthpoitras.com/)",
   "license": "MIT",
   "devDependencies": {
+    "content-kit-utils": "git://github.com/bustlelabs/content-kit-utils#master",
     "gulp": "^3.8.10",
     "gulp-concat": "~2.3.4",
     "gulp-es6-module-transpiler": "^0.2.0",

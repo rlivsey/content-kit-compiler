@@ -3,86 +3,16 @@
  * @version  0.1.0
  * @author   Garth Poitras <garth22@gmail.com> (http://garthpoitras.com/)
  * @license  MIT
- * Last modified: Jan 1, 2015
+ * Last modified: Jan 29, 2015
  */
 (function() {
     "use strict";
-    var src$content$kit$utils$string$utils$$RegExpTrim        = /^\s+|\s+$/g;
-    var src$content$kit$utils$string$utils$$RegExpTrimLeft    = /^\s+/;
-    var src$content$kit$utils$string$utils$$RegExpWSChars     = /(\r\n|\n|\r|\t|\u00A0)/gm;
-    var src$content$kit$utils$string$utils$$RegExpMultiWS     = /\s+/g;
-    var src$content$kit$utils$string$utils$$RegExpNonAlphaNum = /[^a-zA-Z\d]/g;
-
-    /**
-     * String.prototype.trim polyfill
-     * Removes whitespace at beginning and end of string
-     */
-    function src$content$kit$utils$string$utils$$trim(string) {
-      return string ? (string + '').replace(src$content$kit$utils$string$utils$$RegExpTrim, '') : '';
-    }
-
-    /**
-     * String.prototype.trimLeft polyfill
-     * Removes whitespace at beginning of string
-     */
-    function src$content$kit$utils$string$utils$$trimLeft(string) {
-      return string ? (string + '').replace(src$content$kit$utils$string$utils$$RegExpTrimLeft, '') : '';
-    }
-
-    /**
-     * Replaces non-alphanumeric chars with underscores
-     */
-    function src$content$kit$utils$string$utils$$underscore(string) {
-      return string ? src$content$kit$utils$string$utils$$trim(string + '').replace(src$content$kit$utils$string$utils$$RegExpNonAlphaNum, '_') : '';
-    }
-
-    /**
-     * Cleans line breaks, tabs, non-breaking spaces, then multiple occuring whitespaces.
-     */
-    function src$content$kit$utils$string$utils$$sanitizeWhitespace(string) {
-      return string ? (string + '').replace(src$content$kit$utils$string$utils$$RegExpWSChars, '').replace(src$content$kit$utils$string$utils$$RegExpMultiWS, ' ') : '';
-    }
-
-    /**
-     * Injects a string into another string at the index specified
-     */
-    function src$content$kit$utils$string$utils$$injectIntoString(string, injection, index) {
-      return string.substr(0, index) + injection + string.substr(index);
-    }
-
-    /**
-     * @class Type
-     * @constructor
-     * Contains meta info about a node type (id, name, tag, etc).
-     */
-    function src$content$kit$compiler$types$type$$Type(options) {
-      if (options) {
-        this.name = src$content$kit$utils$string$utils$$underscore(options.name || options.tag).toUpperCase();
-        this.isTextType = options.isTextType !== undefined ? options.isTextType : true;
-
-        if (options.id !== undefined) {
-          this.id = options.id;
-        }
-        if (options.tag) {
-          this.tag = options.tag.toLowerCase();
-          this.selfClosing = /^(br|img|hr|meta|link|embed)$/i.test(this.tag);
-          if (options.mappedTags) {
-            this.mappedTags = options.mappedTags;
-          }
-        }
-
-        // Register the type as constant
-        src$content$kit$compiler$types$type$$Type[this.name] = this;
-      }
-    }
-
-    var src$content$kit$compiler$types$type$$default = src$content$kit$compiler$types$type$$Type;
     /**
      * @class Model
      * @constructor
      * @private
      */
-    function src$content$kit$compiler$models$model$$Model(options) {
+    function src$models$model$$Model(options) {
       options = options || {};
       var type_name = options.type_name;
       var attributes = options.attributes;
@@ -102,19 +32,19 @@
      * @param type Type
      * @param options Object
      */
-    src$content$kit$compiler$models$model$$Model.createWithType = function(type, options) {
+    src$models$model$$Model.createWithType = function(type, options) {
       options = options || {};
       options.type = type.id;
       options.type_name = type.name;
       return new this(options);
     };
 
-    var src$content$kit$compiler$models$model$$default = src$content$kit$compiler$models$model$$Model;
+    var src$models$model$$default = src$models$model$$Model;
     /**
      * Merges defaults/options into an Object
      * Useful for constructors
      */
-    function src$content$kit$utils$object$utils$$mergeWithOptions(original, updates, options) {
+    function node_modules$content$kit$utils$src$object$utils$$mergeWithOptions(original, updates, options) {
       options = options || {};
       for(var prop in updates) {
         if (options.hasOwnProperty(prop)) {
@@ -129,14 +59,14 @@
     /**
      * Merges properties of one object into another
      */
-    function src$content$kit$utils$object$utils$$merge(original, updates) {
-      return src$content$kit$utils$object$utils$$mergeWithOptions(original, updates);
+    function node_modules$content$kit$utils$src$object$utils$$merge(original, updates) {
+      return node_modules$content$kit$utils$src$object$utils$$mergeWithOptions(original, updates);
     }
 
     /**
      * Prototype inheritance helper
      */
-    function src$content$kit$utils$object$utils$$inherit(Subclass, Superclass) {
+    function node_modules$content$kit$utils$src$object$utils$$inherit(Subclass, Superclass) {
       for (var key in Superclass) {
         if (Superclass.hasOwnProperty(key)) {
           Subclass[key] = Superclass[key];
@@ -152,7 +82,7 @@
      * For example, so all bold links are consistently marked up 
      * as <a><b>text</b></a> instead of <b><a>text</a></b>
      */
-    function src$content$kit$compiler$models$block$$sortBlockMarkups(markups) {
+    function src$models$block$$sortBlockMarkups(markups) {
       return markups.sort(function(a, b) {
         if (a.start === b.start && a.end === b.end) {
           return b.type - a.type;
@@ -166,74 +96,102 @@
      * @constructor
      * @extends Model
      */
-    function src$content$kit$compiler$models$block$$BlockModel(options) {
+    function src$models$block$$BlockModel(options) {
       options = options || {};
-      src$content$kit$compiler$models$model$$default.call(this, options);
+      src$models$model$$default.call(this, options);
       this.value = options.value || '';
-      this.markup = src$content$kit$compiler$models$block$$sortBlockMarkups(options.markup || []);
+      this.markup = src$models$block$$sortBlockMarkups(options.markup || []);
     }
 
-    src$content$kit$utils$object$utils$$inherit(src$content$kit$compiler$models$block$$BlockModel, src$content$kit$compiler$models$model$$default);
+    node_modules$content$kit$utils$src$object$utils$$inherit(src$models$block$$BlockModel, src$models$model$$default);
 
-    var src$content$kit$compiler$models$block$$default = src$content$kit$compiler$models$block$$BlockModel;
-
-    /**
-     * @class EmbedModel
-     * @constructor
-     * @extends Model
-     * Massages data from an oEmbed response into an EmbedModel
-     */
-    function src$content$kit$compiler$models$embed$$EmbedModel(options) {
-      if (!options) { return null; }
-
-      src$content$kit$compiler$models$model$$default.call(this, {
-        type: src$content$kit$compiler$types$type$$default.EMBED.id,
-        type_name: src$content$kit$compiler$types$type$$default.EMBED.name,
-        attributes: {}
-      });
-
-      // Massage the oEmbed data
-      var attributes = this.attributes;
-      var embedType = options.type;
-      var providerName = options.provider_name;
-      var embedUrl = options.url;
-      var embedTitle = options.title;
-      var embedThumbnail = options.thumbnail_url;
-      var embedHtml = options.html;
-
-      if (embedType)    { attributes.embed_type = embedType; }
-      if (providerName) { attributes.provider_name = providerName; }
-      if (embedUrl)     { attributes.url = embedUrl; }
-      if (embedTitle)   { attributes.title = embedTitle; }
-
-      if (embedType === 'photo') {
-        attributes.thumbnail = options.media_url || embedUrl;
-      } else if (embedThumbnail) {
-        attributes.thumbnail = embedThumbnail;
-      }
-
-      if (embedHtml && (embedType === 'rich' || embedType === 'video')) {
-        attributes.html = embedHtml;
-      }
-    }
-
-    var src$content$kit$compiler$models$embed$$default = src$content$kit$compiler$models$embed$$EmbedModel;
+    var src$models$block$$default = src$models$block$$BlockModel;
 
     /**
      * @class MarkupModel
      * @constructor
      * @extends Model
      */
-    function src$content$kit$compiler$models$markup$$MarkupModel(options) {
+    function src$models$markup$$MarkupModel(options) {
       options = options || {};
-      src$content$kit$compiler$models$model$$default.call(this, options);
+      src$models$model$$default.call(this, options);
       this.start = options.start || 0;
       this.end = options.end || 0;
     }
 
-    src$content$kit$utils$object$utils$$inherit(src$content$kit$compiler$models$markup$$MarkupModel, src$content$kit$compiler$models$model$$default);
+    node_modules$content$kit$utils$src$object$utils$$inherit(src$models$markup$$MarkupModel, src$models$model$$default);
 
-    var src$content$kit$compiler$models$markup$$default = src$content$kit$compiler$models$markup$$MarkupModel;
+    var src$models$markup$$default = src$models$markup$$MarkupModel;
+    var node_modules$content$kit$utils$src$string$utils$$RegExpTrim        = /^\s+|\s+$/g;
+    var node_modules$content$kit$utils$src$string$utils$$RegExpTrimLeft    = /^\s+/;
+    var node_modules$content$kit$utils$src$string$utils$$RegExpWSChars     = /(\r\n|\n|\r|\t|\u00A0)/gm;
+    var node_modules$content$kit$utils$src$string$utils$$RegExpMultiWS     = /\s+/g;
+    var node_modules$content$kit$utils$src$string$utils$$RegExpNonAlphaNum = /[^a-zA-Z\d]/g;
+
+    /**
+     * String.prototype.trim polyfill
+     * Removes whitespace at beginning and end of string
+     */
+    function node_modules$content$kit$utils$src$string$utils$$trim(string) {
+      return string ? (string + '').replace(node_modules$content$kit$utils$src$string$utils$$RegExpTrim, '') : '';
+    }
+
+    /**
+     * String.prototype.trimLeft polyfill
+     * Removes whitespace at beginning of string
+     */
+    function node_modules$content$kit$utils$src$string$utils$$trimLeft(string) {
+      return string ? (string + '').replace(node_modules$content$kit$utils$src$string$utils$$RegExpTrimLeft, '') : '';
+    }
+
+    /**
+     * Replaces non-alphanumeric chars with underscores
+     */
+    function node_modules$content$kit$utils$src$string$utils$$underscore(string) {
+      return string ? node_modules$content$kit$utils$src$string$utils$$trim(string + '').replace(node_modules$content$kit$utils$src$string$utils$$RegExpNonAlphaNum, '_') : '';
+    }
+
+    /**
+     * Cleans line breaks, tabs, non-breaking spaces, then multiple occuring whitespaces.
+     */
+    function node_modules$content$kit$utils$src$string$utils$$sanitizeWhitespace(string) {
+      return string ? (string + '').replace(node_modules$content$kit$utils$src$string$utils$$RegExpWSChars, '').replace(node_modules$content$kit$utils$src$string$utils$$RegExpMultiWS, ' ') : '';
+    }
+
+    /**
+     * Injects a string into another string at the index specified
+     */
+    function node_modules$content$kit$utils$src$string$utils$$injectIntoString(string, injection, index) {
+      return string.substr(0, index) + injection + string.substr(index);
+    }
+
+    /**
+     * @class Type
+     * @constructor
+     * Contains meta info about a node type (id, name, tag, etc).
+     */
+    function src$types$type$$Type(options) {
+      if (options) {
+        this.name = node_modules$content$kit$utils$src$string$utils$$underscore(options.name || options.tag).toUpperCase();
+        this.isTextType = options.isTextType !== undefined ? options.isTextType : true;
+
+        if (options.id !== undefined) {
+          this.id = options.id;
+        }
+        if (options.tag) {
+          this.tag = options.tag.toLowerCase();
+          this.selfClosing = /^(br|img|hr|meta|link|embed)$/i.test(this.tag);
+          if (options.mappedTags) {
+            this.mappedTags = options.mappedTags;
+          }
+        }
+
+        // Register the type as constant
+        src$types$type$$Type[this.name] = this;
+      }
+    }
+
+    var src$types$type$$default = src$types$type$$Type;
 
     /**
      * @class TypeSet
@@ -241,7 +199,7 @@
      * @constructor
      * A Set of Types
      */
-    function src$content$kit$compiler$types$type$set$$TypeSet(types) {
+    function src$types$type$set$$TypeSet(types) {
       var len = types && types.length, i;
 
       this._autoId    = 1;  // Auto-increment id counter
@@ -253,12 +211,12 @@
       }
     }
 
-    src$content$kit$compiler$types$type$set$$TypeSet.prototype = {
+    src$types$type$set$$TypeSet.prototype = {
       /**
        * Adds a type to the set
        */
       addType: function(type) {
-        if (type instanceof src$content$kit$compiler$types$type$$default) {
+        if (type instanceof src$types$type$$default) {
           this[type.name] = type;
           if (type.id === undefined) {
             type.id = this._autoId++;
@@ -300,41 +258,41 @@
       }
     };
 
-    var src$content$kit$compiler$types$type$set$$default = src$content$kit$compiler$types$type$set$$TypeSet;
+    var src$types$type$set$$default = src$types$type$set$$TypeSet;
 
     /**
      * Default supported block types
      */
-    var src$content$kit$compiler$types$default$types$$DefaultBlockTypeSet = new src$content$kit$compiler$types$type$set$$default([
-      new src$content$kit$compiler$types$type$$default({ tag: 'p', name: 'paragraph' }),
-      new src$content$kit$compiler$types$type$$default({ tag: 'h2', name: 'heading' }),
-      new src$content$kit$compiler$types$type$$default({ tag: 'h3', name: 'subheading' }),
-      new src$content$kit$compiler$types$type$$default({ tag: 'img', name: 'image', isTextType: false }),
-      new src$content$kit$compiler$types$type$$default({ tag: 'blockquote', name: 'quote' }),
-      new src$content$kit$compiler$types$type$$default({ tag: 'ul', name: 'list' }),
-      new src$content$kit$compiler$types$type$$default({ tag: 'ol', name: 'ordered list' }),
-      new src$content$kit$compiler$types$type$$default({ name: 'embed', isTextType: false })
+    var src$types$default$types$$DefaultBlockTypeSet = new src$types$type$set$$default([
+      new src$types$type$$default({ tag: 'p', name: 'paragraph' }),
+      new src$types$type$$default({ tag: 'h2', name: 'heading' }),
+      new src$types$type$$default({ tag: 'h3', name: 'subheading' }),
+      new src$types$type$$default({ tag: 'img', name: 'image', isTextType: false }),
+      new src$types$type$$default({ tag: 'blockquote', name: 'quote' }),
+      new src$types$type$$default({ tag: 'ul', name: 'list' }),
+      new src$types$type$$default({ tag: 'ol', name: 'ordered list' }),
+      new src$types$type$$default({ name: 'embed', isTextType: false })
     ]);
 
     /**
      * Default supported markup types
      */
-    var src$content$kit$compiler$types$default$types$$DefaultMarkupTypeSet = new src$content$kit$compiler$types$type$set$$default([
-      new src$content$kit$compiler$types$type$$default({ tag: 'strong', name: 'bold', mappedTags: ['b'] }),
-      new src$content$kit$compiler$types$type$$default({ tag: 'em', name: 'italic', mappedTags: ['i'] }),
-      new src$content$kit$compiler$types$type$$default({ tag: 'u', name: 'underline' }),
-      new src$content$kit$compiler$types$type$$default({ tag: 'a', name: 'link' }),
-      new src$content$kit$compiler$types$type$$default({ tag: 'br', name: 'break' }),
-      new src$content$kit$compiler$types$type$$default({ tag: 'li', name: 'list item' }),
-      new src$content$kit$compiler$types$type$$default({ tag: 'sub', name: 'subscript' }),
-      new src$content$kit$compiler$types$type$$default({ tag: 'sup', name: 'superscript' })
+    var src$types$default$types$$DefaultMarkupTypeSet = new src$types$type$set$$default([
+      new src$types$type$$default({ tag: 'strong', name: 'bold', mappedTags: ['b'] }),
+      new src$types$type$$default({ tag: 'em', name: 'italic', mappedTags: ['i'] }),
+      new src$types$type$$default({ tag: 'u', name: 'underline' }),
+      new src$types$type$$default({ tag: 'a', name: 'link' }),
+      new src$types$type$$default({ tag: 'br', name: 'break' }),
+      new src$types$type$$default({ tag: 'li', name: 'list item' }),
+      new src$types$type$$default({ tag: 'sub', name: 'subscript' }),
+      new src$types$type$$default({ tag: 'sup', name: 'superscript' })
     ]);
 
     /**
      * Converts an array-like object (i.e. NodeList) to Array
      * Note: could just use Array.prototype.slice but does not work in IE <= 8
      */
-    function src$content$kit$utils$array$utils$$toArray(obj) {
+    function node_modules$content$kit$utils$src$array$utils$$toArray(obj) {
       var array = [];
       var i = obj && obj.length >>> 0; // cast to Uint32
       while (i--) {
@@ -346,7 +304,7 @@
     /**
      * Computes the sum of values in a (sparse) array
      */
-    function src$content$kit$utils$array$utils$$sumSparseArray(array) {
+    function node_modules$content$kit$utils$src$array$utils$$sumSparseArray(array) {
       var sum = 0, i;
       for (i in array) { // 'for in' is better for sparse arrays
         if (array.hasOwnProperty(i)) {
@@ -360,7 +318,7 @@
      * A document instance separate from the page's document. (if browser supports it)
      * Prevents images, scripts, and styles from executing while parsing nodes.
      */
-    var src$content$kit$utils$node$utils$$standaloneDocument = (function() {
+    var node_modules$content$kit$utils$src$node$utils$$standaloneDocument = (function() {
       var implementation = document.implementation;
       var createHTMLDocument = implementation.createHTMLDocument;
 
@@ -373,29 +331,29 @@
     /**
      * document.createElement with our lean, standalone document
      */
-    function src$content$kit$utils$node$utils$$createElement(type) {
-      return src$content$kit$utils$node$utils$$standaloneDocument.createElement(type);
+    function node_modules$content$kit$utils$src$node$utils$$createElement(type) {
+      return node_modules$content$kit$utils$src$node$utils$$standaloneDocument.createElement(type);
     }
 
     /**
      * A reusable DOM Node for parsing html content.
      */
-    var src$content$kit$utils$node$utils$$DOMParsingNode = src$content$kit$utils$node$utils$$createElement('div');
+    var node_modules$content$kit$utils$src$node$utils$$DOMParsingNode = node_modules$content$kit$utils$src$node$utils$$createElement('div');
 
     /**
      * Returns plain-text of a `Node`
      */
-    function src$content$kit$utils$node$utils$$textOfNode(node) {
+    function node_modules$content$kit$utils$src$node$utils$$textOfNode(node) {
       var text = node.textContent || node.innerText;
-      return text ? src$content$kit$utils$string$utils$$sanitizeWhitespace(text) : '';
+      return text ? node_modules$content$kit$utils$src$string$utils$$sanitizeWhitespace(text) : '';
     }
 
     /**
      * Replaces a `Node` with its children
      */
-    function src$content$kit$utils$node$utils$$unwrapNode(node) {
+    function node_modules$content$kit$utils$src$node$utils$$unwrapNode(node) {
       if (node.hasChildNodes()) {
-        var children = src$content$kit$utils$array$utils$$toArray(node.childNodes);
+        var children = node_modules$content$kit$utils$src$array$utils$$toArray(node.childNodes);
         var len = children.length;
         var parent = node.parentNode, i;
         for (i = 0; i < len; i++) {
@@ -407,7 +365,7 @@
     /**
      * Extracts attributes of a `Node` to a hash of key/value pairs
      */
-    function src$content$kit$utils$node$utils$$attributesForNode(node, blacklist) {
+    function node_modules$content$kit$utils$src$node$utils$$attributesForNode(node, blacklist) {
       var attrs = node.attributes;
       var len = attrs && attrs.length;
       var i, attr, name, hash;
@@ -424,19 +382,19 @@
       return hash;
     }
 
-    var src$content$kit$compiler$parsers$html$parser$$ELEMENT_NODE = window.Node && Node.ELEMENT_NODE || 1;
-    var src$content$kit$compiler$parsers$html$parser$$TEXT_NODE    = window.Node && Node.TEXT_NODE    || 3;
-    var src$content$kit$compiler$parsers$html$parser$$defaultAttributeBlacklist = { 'style' : 1, 'class' : 1 };
+    var src$parsers$html$parser$$ELEMENT_NODE = window.Node && Node.ELEMENT_NODE || 1;
+    var src$parsers$html$parser$$TEXT_NODE    = window.Node && Node.TEXT_NODE    || 3;
+    var src$parsers$html$parser$$defaultAttributeBlacklist = { 'style' : 1, 'class' : 1 };
 
     /**
      * Returns the last block in the set or creates a default block if none exist yet.
      */
-    function src$content$kit$compiler$parsers$html$parser$$getLastBlockOrCreate(blocks) {
+    function src$parsers$html$parser$$getLastBlockOrCreate(blocks) {
       var blockCount = blocks.length, block;
       if (blockCount) {
         block = blocks[blockCount - 1];
       } else {
-        block = src$content$kit$compiler$models$block$$default.createWithType(src$content$kit$compiler$types$type$$default.PARAGRAPH);
+        block = src$models$block$$default.createWithType(src$types$type$$default.PARAGRAPH);
         blocks.push(block);
       }
       return block;
@@ -445,27 +403,27 @@
     /**
      * Helper to parse elements at the root that aren't blocks
      */
-    function src$content$kit$compiler$parsers$html$parser$$handleNonBlockAtRoot(parser, elementNode, blocks) {
-      var block = src$content$kit$compiler$parsers$html$parser$$getLastBlockOrCreate(blocks);
+    function src$parsers$html$parser$$handleNonBlockAtRoot(parser, elementNode, blocks) {
+      var block = src$parsers$html$parser$$getLastBlockOrCreate(blocks);
       var markup = parser.parseMarkupForElement(elementNode, block.value.length);
       if (markup) {
         block.markup = block.markup.concat(markup);
       }
-      block.value += src$content$kit$utils$node$utils$$textOfNode(elementNode);
+      block.value += node_modules$content$kit$utils$src$node$utils$$textOfNode(elementNode);
     }
 
     /**
      * @class HTMLParser
      * @constructor
      */
-    function src$content$kit$compiler$parsers$html$parser$$HTMLParser(options) {
+    function src$parsers$html$parser$$HTMLParser(options) {
       var defaults = {
-        blockTypes         : src$content$kit$compiler$types$default$types$$DefaultBlockTypeSet,
-        markupTypes        : src$content$kit$compiler$types$default$types$$DefaultMarkupTypeSet,
-        attributeBlacklist : src$content$kit$compiler$parsers$html$parser$$defaultAttributeBlacklist,
+        blockTypes         : src$types$default$types$$DefaultBlockTypeSet,
+        markupTypes        : src$types$default$types$$DefaultMarkupTypeSet,
+        attributeBlacklist : src$parsers$html$parser$$defaultAttributeBlacklist,
         includeTypeNames   : false
       };
-      src$content$kit$utils$object$utils$$mergeWithOptions(this, defaults, options);
+      node_modules$content$kit$utils$src$object$utils$$mergeWithOptions(this, defaults, options);
     }
 
     /**
@@ -473,10 +431,10 @@
      * @param html String of HTML content
      * @return Array Parsed JSON content array
      */
-    src$content$kit$compiler$parsers$html$parser$$HTMLParser.prototype.parse = function(html) {
-      src$content$kit$utils$node$utils$$DOMParsingNode.innerHTML = src$content$kit$utils$string$utils$$sanitizeWhitespace(html);
+    src$parsers$html$parser$$HTMLParser.prototype.parse = function(html) {
+      node_modules$content$kit$utils$src$node$utils$$DOMParsingNode.innerHTML = node_modules$content$kit$utils$src$string$utils$$sanitizeWhitespace(html);
 
-      var nodes = src$content$kit$utils$array$utils$$toArray(src$content$kit$utils$node$utils$$DOMParsingNode.childNodes);
+      var nodes = node_modules$content$kit$utils$src$array$utils$$toArray(node_modules$content$kit$utils$src$node$utils$$DOMParsingNode.childNodes);
       var nodeCount = nodes.length;
       var blocks = [];
       var i, node, nodeType, block, text;
@@ -485,17 +443,17 @@
         node = nodes[i];
         nodeType = node.nodeType;
 
-        if (nodeType === src$content$kit$compiler$parsers$html$parser$$ELEMENT_NODE) {
+        if (nodeType === src$parsers$html$parser$$ELEMENT_NODE) {
           block = this.serializeBlockNode(node);
           if (block) {
             blocks.push(block);
           } else {
-            src$content$kit$compiler$parsers$html$parser$$handleNonBlockAtRoot(this, node, blocks);
+            src$parsers$html$parser$$handleNonBlockAtRoot(this, node, blocks);
           }
-        } else if (nodeType === src$content$kit$compiler$parsers$html$parser$$TEXT_NODE) {
+        } else if (nodeType === src$parsers$html$parser$$TEXT_NODE) {
           text = node.nodeValue;
-          if (src$content$kit$utils$string$utils$$trim(text)) {
-            block = src$content$kit$compiler$parsers$html$parser$$getLastBlockOrCreate(blocks);
+          if (node_modules$content$kit$utils$src$string$utils$$trim(text)) {
+            block = src$parsers$html$parser$$getLastBlockOrCreate(blocks);
             block.value += text;
           }
         }
@@ -509,7 +467,7 @@
      * @param node element node to parse
      * @return {Array} parsed markups
      */
-    src$content$kit$compiler$parsers$html$parser$$HTMLParser.prototype.parseMarkupForElement = function(node, startOffset) {
+    src$parsers$html$parser$$HTMLParser.prototype.parseMarkupForElement = function(node, startOffset) {
       var index = 0;
       var markups = [];
       var currentNode, nodeType, markup;
@@ -523,13 +481,13 @@
         currentNode = node.firstChild;
         nodeType = currentNode.nodeType;
 
-        if (nodeType === src$content$kit$compiler$parsers$html$parser$$ELEMENT_NODE) {
+        if (nodeType === src$parsers$html$parser$$ELEMENT_NODE) {
           markup = this.serializeMarkupNode(currentNode, startOffset);
           if (markup) { markups.push(markup); }
-          src$content$kit$utils$node$utils$$unwrapNode(currentNode);
-        } else if (nodeType === src$content$kit$compiler$parsers$html$parser$$TEXT_NODE) {
-          var text = src$content$kit$utils$string$utils$$sanitizeWhitespace(currentNode.nodeValue);
-          if (index === 0) { text = src$content$kit$utils$string$utils$$trimLeft(text); }
+          node_modules$content$kit$utils$src$node$utils$$unwrapNode(currentNode);
+        } else if (nodeType === src$parsers$html$parser$$TEXT_NODE) {
+          var text = node_modules$content$kit$utils$src$string$utils$$sanitizeWhitespace(currentNode.nodeValue);
+          if (index === 0) { text = node_modules$content$kit$utils$src$string$utils$$trimLeft(text); }
           if (text) { startOffset += text.length; }
         }
 
@@ -546,14 +504,14 @@
      * @return {BlockModel} parsed block model
      * Serializes a single block type node into a model
      */
-    src$content$kit$compiler$parsers$html$parser$$HTMLParser.prototype.serializeBlockNode = function(node) {
+    src$parsers$html$parser$$HTMLParser.prototype.serializeBlockNode = function(node) {
       var type = this.blockTypes.findByNode(node);
       if (type) {
-        return new src$content$kit$compiler$models$block$$default({
+        return new src$models$block$$default({
           type       : type.id,
           type_name  : this.includeTypeNames && type.name,
-          value      : src$content$kit$utils$string$utils$$trim(src$content$kit$utils$node$utils$$textOfNode(node)),
-          attributes : src$content$kit$utils$node$utils$$attributesForNode(node, this.attributeBlacklist),
+          value      : node_modules$content$kit$utils$src$string$utils$$trim(node_modules$content$kit$utils$src$node$utils$$textOfNode(node)),
+          attributes : node_modules$content$kit$utils$src$node$utils$$attributesForNode(node, this.attributeBlacklist),
           markup     : this.parseMarkupForElement(node)
         });
       }
@@ -566,7 +524,7 @@
      * @return {MarkupModel} markup model
      * Serializes markup of a single html element node (no child elements)
      */
-    src$content$kit$compiler$parsers$html$parser$$HTMLParser.prototype.serializeMarkupNode = function(node, startIndex) {
+    src$parsers$html$parser$$HTMLParser.prototype.serializeMarkupNode = function(node, startIndex) {
       var type = this.markupTypes.findByNode(node);
       var selfClosing, endIndex;
 
@@ -574,25 +532,25 @@
         selfClosing = type.selfClosing;
         if (!selfClosing && !node.hasChildNodes()) { return; } // check for empty nodes
 
-        endIndex = startIndex + (selfClosing ? 0 : src$content$kit$utils$node$utils$$textOfNode(node).length);
+        endIndex = startIndex + (selfClosing ? 0 : node_modules$content$kit$utils$src$node$utils$$textOfNode(node).length);
         if (endIndex > startIndex || (selfClosing && endIndex === startIndex)) { // check for empty nodes
-          return new src$content$kit$compiler$models$markup$$default({
+          return new src$models$markup$$default({
             type       : type.id,
             type_name  : this.includeTypeNames && type.name,
             start      : startIndex,
             end        : endIndex,
-            attributes : src$content$kit$utils$node$utils$$attributesForNode(node, this.attributeBlacklist)
+            attributes : node_modules$content$kit$utils$src$node$utils$$attributesForNode(node, this.attributeBlacklist)
           });
         }
       }
     };
 
-    var src$content$kit$compiler$parsers$html$parser$$default = src$content$kit$compiler$parsers$html$parser$$HTMLParser;
+    var src$parsers$html$parser$$default = src$parsers$html$parser$$HTMLParser;
 
     /**
      * Builds an opening html tag. i.e. '<a href="http://link.com/" rel="author">'
      */
-    function src$content$kit$compiler$renderers$html$element$renderer$$createOpeningTag(tagName, attributes, selfClosing) {
+    function src$renderers$html$element$renderer$$createOpeningTag(tagName, attributes, selfClosing) {
       var tag = '<' + tagName;
       for (var attr in attributes) {
         if (attributes.hasOwnProperty(attr)) {
@@ -607,7 +565,7 @@
     /**
      * Builds a closing html tag. i.e. '</p>'
      */
-    function src$content$kit$compiler$renderers$html$element$renderer$$createCloseTag(tagName) {
+    function src$renderers$html$element$renderer$$createCloseTag(tagName) {
       return '</' + tagName + '>';
     }
 
@@ -615,7 +573,7 @@
      * @class HTMLElementRenderer
      * @constructor
      */
-    function src$content$kit$compiler$renderers$html$element$renderer$$HTMLElementRenderer(options) {
+    function src$renderers$html$element$renderer$$HTMLElementRenderer(options) {
       options = options || {};
       this.type = options.type;
       this.markupTypes = options.markupTypes;
@@ -627,19 +585,19 @@
      * @return String html
      * Renders a block model into a HTML string.
      */
-    src$content$kit$compiler$renderers$html$element$renderer$$HTMLElementRenderer.prototype.render = function(model) {
+    src$renderers$html$element$renderer$$HTMLElementRenderer.prototype.render = function(model) {
       var html = '';
       var type = this.type;
       var tagName = type.tag;
       var selfClosing = type.selfClosing;
 
       if (tagName) {
-        html += src$content$kit$compiler$renderers$html$element$renderer$$createOpeningTag(tagName, model.attributes, selfClosing);
+        html += src$renderers$html$element$renderer$$createOpeningTag(tagName, model.attributes, selfClosing);
       }
       if (!selfClosing) {
         html += this.renderMarkup(model.value, model.markup);
         if (tagName) {
-          html += src$content$kit$compiler$renderers$html$element$renderer$$createCloseTag(tagName);
+          html += src$renderers$html$element$renderer$$createCloseTag(tagName);
         }
       }
       return html;
@@ -652,7 +610,7 @@
      * @return String html
      * Renders a markup model into a HTML string.
      */
-    src$content$kit$compiler$renderers$html$element$renderer$$HTMLElementRenderer.prototype.renderMarkup = function(text, markups) {
+    src$renderers$html$element$renderer$$HTMLElementRenderer.prototype.renderMarkup = function(text, markups) {
       var parsedTagsIndexes = [];
       var len = markups && markups.length, i;
 
@@ -663,18 +621,18 @@
             selfClosing = markupMeta.selfClosing,
             start = markup.start,
             end = markup.end,
-            openTag = src$content$kit$compiler$renderers$html$element$renderer$$createOpeningTag(tagName, markup.attributes, selfClosing),
+            openTag = src$renderers$html$element$renderer$$createOpeningTag(tagName, markup.attributes, selfClosing),
             parsedTagLengthAtIndex = parsedTagsIndexes[start] || 0,
-            parsedTagLengthBeforeIndex = src$content$kit$utils$array$utils$$sumSparseArray(parsedTagsIndexes.slice(0, start + 1));
+            parsedTagLengthBeforeIndex = node_modules$content$kit$utils$src$array$utils$$sumSparseArray(parsedTagsIndexes.slice(0, start + 1));
 
-        text = src$content$kit$utils$string$utils$$injectIntoString(text, openTag, start + parsedTagLengthBeforeIndex);
+        text = node_modules$content$kit$utils$src$string$utils$$injectIntoString(text, openTag, start + parsedTagLengthBeforeIndex);
         parsedTagsIndexes[start] = parsedTagLengthAtIndex + openTag.length;
 
         if (!selfClosing) {
-          var closeTag = src$content$kit$compiler$renderers$html$element$renderer$$createCloseTag(tagName);
+          var closeTag = src$renderers$html$element$renderer$$createCloseTag(tagName);
           parsedTagLengthAtIndex = parsedTagsIndexes[end] || 0;
-          parsedTagLengthBeforeIndex = src$content$kit$utils$array$utils$$sumSparseArray(parsedTagsIndexes.slice(0, end));
-          text = src$content$kit$utils$string$utils$$injectIntoString(text, closeTag, end + parsedTagLengthBeforeIndex);
+          parsedTagLengthBeforeIndex = node_modules$content$kit$utils$src$array$utils$$sumSparseArray(parsedTagsIndexes.slice(0, end));
+          text = node_modules$content$kit$utils$src$string$utils$$injectIntoString(text, closeTag, end + parsedTagLengthBeforeIndex);
           parsedTagsIndexes[end]  = parsedTagLengthAtIndex + closeTag.length;
         }
       }
@@ -682,19 +640,19 @@
       return text;
     };
 
-    var src$content$kit$compiler$renderers$html$element$renderer$$default = src$content$kit$compiler$renderers$html$element$renderer$$HTMLElementRenderer;
+    var src$renderers$html$element$renderer$$default = src$renderers$html$element$renderer$$HTMLElementRenderer;
 
     /**
      * @class HTMLRenderer
      * @constructor
      */
-    function src$content$kit$compiler$renderers$html$renderer$$HTMLRenderer(options) {
+    function src$renderers$html$renderer$$HTMLRenderer(options) {
       var defaults = {
-        blockTypes    : src$content$kit$compiler$types$default$types$$DefaultBlockTypeSet,
-        markupTypes   : src$content$kit$compiler$types$default$types$$DefaultMarkupTypeSet,
+        blockTypes    : src$types$default$types$$DefaultBlockTypeSet,
+        markupTypes   : src$types$default$types$$DefaultMarkupTypeSet,
         typeRenderers : {}
       };
-      src$content$kit$utils$object$utils$$mergeWithOptions(this, defaults, options);
+      node_modules$content$kit$utils$src$object$utils$$mergeWithOptions(this, defaults, options);
     }
 
     /**
@@ -703,7 +661,7 @@
      * @param renderer the rendering function that returns a string of html
      * Registers custom rendering hooks for a type
      */
-    src$content$kit$compiler$renderers$html$renderer$$HTMLRenderer.prototype.willRenderType = function(type, renderer) {
+    src$renderers$html$renderer$$HTMLRenderer.prototype.willRenderType = function(type, renderer) {
       if ('number' !== typeof type) {
         type = type.id;
       }
@@ -716,13 +674,13 @@
      * @returns renderer
      * Returns an instance of a renderer for supplied model
      */
-    src$content$kit$compiler$renderers$html$renderer$$HTMLRenderer.prototype.rendererFor = function(model) {
+    src$renderers$html$renderer$$HTMLRenderer.prototype.rendererFor = function(model) {
       var type = this.blockTypes.findById(model.type);
       var attrs = model.attributes;
-      if (type === src$content$kit$compiler$types$type$$default.EMBED) {
+      if (type === src$types$type$$default.EMBED) {
         return attrs && attrs.html || '';
       }
-      return new src$content$kit$compiler$renderers$html$element$renderer$$default({ type: type, markupTypes: this.markupTypes });
+      return new src$renderers$html$element$renderer$$default({ type: type, markupTypes: this.markupTypes });
     };
 
     /**
@@ -730,7 +688,7 @@
      * @param model
      * @return String html
      */
-    src$content$kit$compiler$renderers$html$renderer$$HTMLRenderer.prototype.render = function(model) {
+    src$renderers$html$renderer$$HTMLRenderer.prototype.render = function(model) {
       var html = '';
       var len = model && model.length;
       var i, item, renderer, renderHook, itemHtml;
@@ -745,24 +703,24 @@
       return html;
     };
 
-    var src$content$kit$compiler$renderers$html$renderer$$default = src$content$kit$compiler$renderers$html$renderer$$HTMLRenderer;
+    var src$renderers$html$renderer$$default = src$renderers$html$renderer$$HTMLRenderer;
 
     /**
      * @class Compiler
      * @constructor
      * @param options
      */
-    function src$content$kit$compiler$compiler$$Compiler(options) {
-      var parser = new src$content$kit$compiler$parsers$html$parser$$default();
-      var renderer = new src$content$kit$compiler$renderers$html$renderer$$default();
+    function src$compiler$$Compiler(options) {
+      var parser = new src$parsers$html$parser$$default();
+      var renderer = new src$renderers$html$renderer$$default();
       var defaults = {
         parser           : parser,
         renderer         : renderer,
-        blockTypes       : src$content$kit$compiler$types$default$types$$DefaultBlockTypeSet,
-        markupTypes      : src$content$kit$compiler$types$default$types$$DefaultMarkupTypeSet,
+        blockTypes       : src$types$default$types$$DefaultBlockTypeSet,
+        markupTypes      : src$types$default$types$$DefaultMarkupTypeSet,
         includeTypeNames : false // Outputs `type_name:'HEADING'` etc. when parsing. Good for debugging.
       };
-      src$content$kit$utils$object$utils$$mergeWithOptions(this, defaults, options);
+      node_modules$content$kit$utils$src$object$utils$$mergeWithOptions(this, defaults, options);
 
       // Reference the compiler settings
       parser.blockTypes  = renderer.blockTypes  = this.blockTypes;
@@ -775,7 +733,7 @@
      * @param input
      * @return Array
      */
-    src$content$kit$compiler$compiler$$Compiler.prototype.parse = function(input) {
+    src$compiler$$Compiler.prototype.parse = function(input) {
       return this.parser.parse(input);
     };
 
@@ -784,7 +742,7 @@
      * @param model
      * @return String
      */
-    src$content$kit$compiler$compiler$$Compiler.prototype.render = function(model) {
+    src$compiler$$Compiler.prototype.render = function(model) {
       return this.renderer.render(model);
     };
 
@@ -793,7 +751,7 @@
      * @param input
      * @return String
      */
-    src$content$kit$compiler$compiler$$Compiler.prototype.rerender = function(input) {
+    src$compiler$$Compiler.prototype.rerender = function(input) {
       return this.render(this.parse(input));
     };
 
@@ -802,7 +760,7 @@
      * @param model
      * @return String
      */
-    src$content$kit$compiler$compiler$$Compiler.prototype.reparse = function(model) {
+    src$compiler$$Compiler.prototype.reparse = function(model) {
       return this.parse(this.render(model));
     };
 
@@ -810,7 +768,7 @@
      * @method registerBlockType
      * @param {Type} type
      */
-    src$content$kit$compiler$compiler$$Compiler.prototype.registerBlockType = function(type) {
+    src$compiler$$Compiler.prototype.registerBlockType = function(type) {
       return this.blockTypes.addType(type);
     };
 
@@ -818,23 +776,65 @@
      * @method registerMarkupType
      * @param {Type} type
      */
-    src$content$kit$compiler$compiler$$Compiler.prototype.registerMarkupType = function(type) {
+    src$compiler$$Compiler.prototype.registerMarkupType = function(type) {
       return this.markupTypes.addType(type);
     };
 
-    var src$content$kit$compiler$compiler$$default = src$content$kit$compiler$compiler$$Compiler;
+    var src$compiler$$default = src$compiler$$Compiler;
+
+    /**
+     * @class EmbedModel
+     * @constructor
+     * @extends Model
+     * Massages data from an oEmbed response into an EmbedModel
+     */
+    function src$models$embed$$EmbedModel(options) {
+      if (!options) { return null; }
+
+      src$models$model$$default.call(this, {
+        type: src$types$type$$default.EMBED.id,
+        type_name: src$types$type$$default.EMBED.name,
+        attributes: {}
+      });
+
+      // Massage the oEmbed data
+      var attributes = this.attributes;
+      var embedType = options.type;
+      var providerName = options.provider_name;
+      var embedUrl = options.url;
+      var embedTitle = options.title;
+      var embedThumbnail = options.thumbnail_url;
+      var embedHtml = options.html;
+
+      if (embedType)    { attributes.embed_type = embedType; }
+      if (providerName) { attributes.provider_name = providerName; }
+      if (embedUrl)     { attributes.url = embedUrl; }
+      if (embedTitle)   { attributes.title = embedTitle; }
+
+      if (embedType === 'photo') {
+        attributes.thumbnail = options.media_url || embedUrl;
+      } else if (embedThumbnail) {
+        attributes.thumbnail = embedThumbnail;
+      }
+
+      if (embedHtml && (embedType === 'rich' || embedType === 'video')) {
+        attributes.html = embedHtml;
+      }
+    }
+
+    var src$models$embed$$default = src$models$embed$$EmbedModel;
 
     /**
      * @namespace ContentKit
      * Merge public modules into the common ContentKit namespace.
      */
-    var src$content$kit$$ContentKit = window.ContentKit = window.ContentKit || {};
-    src$content$kit$$ContentKit.Type = src$content$kit$compiler$types$type$$default;
-    src$content$kit$$ContentKit.BlockModel = src$content$kit$compiler$models$block$$default;
-    src$content$kit$$ContentKit.EmbedModel = src$content$kit$compiler$models$embed$$default;
-    src$content$kit$$ContentKit.Compiler = src$content$kit$compiler$compiler$$default;
-    src$content$kit$$ContentKit.HTMLParser = src$content$kit$compiler$parsers$html$parser$$default;
-    src$content$kit$$ContentKit.HTMLRenderer = src$content$kit$compiler$renderers$html$renderer$$default;
+    var src$index$$ContentKit = window.ContentKit = window.ContentKit || {};
+    src$index$$ContentKit.Type = src$types$type$$default;
+    src$index$$ContentKit.BlockModel = src$models$block$$default;
+    src$index$$ContentKit.EmbedModel = src$models$embed$$default;
+    src$index$$ContentKit.Compiler = src$compiler$$default;
+    src$index$$ContentKit.HTMLParser = src$parsers$html$parser$$default;
+    src$index$$ContentKit.HTMLRenderer = src$renderers$html$renderer$$default;
 }).call(this);
 
 //# sourceMappingURL=bundle.map
