@@ -1,4 +1,4 @@
-# ContentKit-Compiler [![Build Status](https://travis-ci.org/ContentKit/content-kit-compiler.svg?branch=master)](https://travis-ci.org/ContentKit/content-kit-compiler)
+# ContentKit-Compiler [![Build Status](https://travis-ci.org/bustlelabs/content-kit-compiler.svg?branch=master)](https://travis-ci.org/bustlelabs/content-kit-compiler)
 
 Parses HTML to ContentKit's JSON schema and renders back to HTML.
 
@@ -99,7 +99,3 @@ API currently in flux
 npm install
 gulp
 ```
-
-### TODO
-- Translate tags (e.g. <b> => <strong>)
-- Disabled certain markup per block type

@@ -1,9 +1,9 @@
 /*!
- * @overview ContentKit-Compiler: Parses HTML to ContentKit's JSON schema and renders back to HTML.
+ * @overview content-kit-compiler: Compiler for content-kit suite: parses markup to json and renders json to markup
  * @version  0.1.0
  * @author   Garth Poitras <garth22@gmail.com> (http://garthpoitras.com/)
  * @license  MIT
- * Last modified: Jan 29, 2015
+ * Last modified: Feb 3, 2015
  */
 (function() {
     "use strict";
@@ -641,6 +641,23 @@
     };
 
     var src$renderers$html$element$renderer$$default = src$renderers$html$element$renderer$$HTMLElementRenderer;
+    /**
+     * @class HTMLEmbedRenderer
+     * @constructor
+     */
+    function src$renderers$html$embed$renderer$$HTMLEmbedRenderer() {}
+
+    /**
+     * @method render
+     * @param model a block model
+     * @return String html
+     */
+    src$renderers$html$embed$renderer$$HTMLEmbedRenderer.prototype.render = function(model) {
+      var attrs = model.attributes;
+      return attrs && attrs.html || '';
+    };
+
+    var src$renderers$html$embed$renderer$$default = src$renderers$html$embed$renderer$$HTMLEmbedRenderer;
 
     /**
      * @class HTMLRenderer
@@ -656,29 +673,15 @@
     }
 
     /**
-     * @method willRenderType
-     * @param type {Number|Type}
-     * @param renderer the rendering function that returns a string of html
-     * Registers custom rendering hooks for a type
-     */
-    src$renderers$html$renderer$$HTMLRenderer.prototype.willRenderType = function(type, renderer) {
-      if ('number' !== typeof type) {
-        type = type.id;
-      }
-      this.typeRenderers[type] = renderer;
-    };
-
-    /**
      * @method rendererFor
-     * @param model
+     * @param block
      * @returns renderer
-     * Returns an instance of a renderer for supplied model
+     * Returns an instance of a renderer for supplied block model
      */
-    src$renderers$html$renderer$$HTMLRenderer.prototype.rendererFor = function(model) {
-      var type = this.blockTypes.findById(model.type);
-      var attrs = model.attributes;
+    src$renderers$html$renderer$$HTMLRenderer.prototype.rendererFor = function(block) {
+      var type = this.blockTypes.findById(block.type);
       if (type === src$types$type$$default.EMBED) {
-        return attrs && attrs.html || '';
+        return new src$renderers$html$embed$renderer$$default();
       }
       return new src$renderers$html$element$renderer$$default({ type: type, markupTypes: this.markupTypes });
     };
@@ -691,14 +694,16 @@
     src$renderers$html$renderer$$HTMLRenderer.prototype.render = function(model) {
       var html = '';
       var len = model && model.length;
-      var i, item, renderer, renderHook, itemHtml;
+      var i, block, renderer, renderHook, blockHtml;
 
       for (i = 0; i < len; i++) {
-        item = model[i];
-        renderer = this.rendererFor(item);
-        renderHook = this.typeRenderers[item.type];
-        itemHtml = renderHook ? renderHook.call(renderer, item) : renderer.render(item);
-        if (itemHtml) { html += itemHtml; }
+        block = model[i];
+        renderer = this.rendererFor(block);
+        renderHook = this.typeRenderers[block.type];
+        blockHtml = renderHook ? renderHook.call(renderer, block) : renderer.render(block);
+        if (blockHtml) { 
+          html += blockHtml;
+        }
       }
       return html;
     };
@@ -723,9 +728,9 @@
       node_modules$content$kit$utils$src$object$utils$$mergeWithOptions(this, defaults, options);
 
       // Reference the compiler settings
-      parser.blockTypes  = renderer.blockTypes  = this.blockTypes;
-      parser.markupTypes = renderer.markupTypes = this.markupTypes;
-      parser.includeTypeNames = this.includeTypeNames;
+      this.parser.blockTypes  = this.renderer.blockTypes  = this.blockTypes;
+      this.parser.markupTypes = this.renderer.markupTypes = this.markupTypes;
+      this.parser.includeTypeNames = this.includeTypeNames;
     }
 
     /**
@@ -826,9 +831,9 @@
 
     /**
      * @namespace ContentKit
-     * Merge public modules into the common ContentKit namespace.
+     * Public ContentKit Compiler modules
      */
-    var src$index$$ContentKit = window.ContentKit = window.ContentKit || {};
+    var src$index$$ContentKit = window.ContentKit = {};
     src$index$$ContentKit.Type = src$types$type$$default;
     src$index$$ContentKit.BlockModel = src$models$block$$default;
     src$index$$ContentKit.EmbedModel = src$models$embed$$default;

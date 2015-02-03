@@ -18,27 +18,13 @@ function HTMLRenderer(options) {
 }
 
 /**
- * @method willRenderType
- * @param type {Number|Type}
- * @param renderer the rendering function that returns a string of html
- * Registers custom rendering hooks for a type
- */
-HTMLRenderer.prototype.willRenderType = function(type, renderer) {
-  if ('number' !== typeof type) {
-    type = type.id;
-  }
-  this.typeRenderers[type] = renderer;
-};
-
-/**
  * @method rendererFor
- * @param model
+ * @param block
  * @returns renderer
- * Returns an instance of a renderer for supplied model
+ * Returns an instance of a renderer for supplied block model
  */
-HTMLRenderer.prototype.rendererFor = function(model) {
-  var type = this.blockTypes.findById(model.type);
-  var attrs = model.attributes;
+HTMLRenderer.prototype.rendererFor = function(block) {
+  var type = this.blockTypes.findById(block.type);
   if (type === Type.EMBED) {
     return new HTMLEmbedRenderer();
   }
@@ -53,14 +39,16 @@ HTMLRenderer.prototype.rendererFor = function(model) {
 HTMLRenderer.prototype.render = function(model) {
   var html = '';
   var len = model && model.length;
-  var i, item, renderer, renderHook, itemHtml;
+  var i, block, renderer, renderHook, blockHtml;
 
   for (i = 0; i < len; i++) {
-    item = model[i];
-    renderer = this.rendererFor(item);
-    renderHook = this.typeRenderers[item.type];
-    itemHtml = renderHook ? renderHook.call(renderer, item) : renderer.render(item);
-    if (itemHtml) { html += itemHtml; }
+    block = model[i];
+    renderer = this.rendererFor(block);
+    renderHook = this.typeRenderers[block.type];
+    blockHtml = renderHook ? renderHook.call(renderer, block) : renderer.render(block);
+    if (blockHtml) { 
+      html += blockHtml;
+    }
   }
   return html;
 };

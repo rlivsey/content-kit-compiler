@@ -79,21 +79,14 @@ test('render self-closing elements', function() {
   equal ( rendered, input );
 });
 
-test('willRenderType hooks', function() {
-  var input = '<img src="http://domain.com/test1.png"/>';
-  var parsed = compiler.parse(input);
+test('render embeds', function() {
+  var model = {
+    type: ContentKit.Type.EMBED.id,
+    attributes: {
+      html: '<iframe src="http://test"></iframe>'
+    }
+  };
+  var rendered = compiler.render([model]);
 
-  compiler.renderer.willRenderType(ContentKit.Type.IMAGE, function(model) {
-    return '<div class="image-wrapper">' + this.render(model) + '</div>';
-  });
-
-  var rendered = compiler.render(parsed);
-  equal ( rendered, '<div class="image-wrapper">' + input + '</div>');
-
-  compiler.renderer.willRenderType(ContentKit.Type.IMAGE.id, function(model) {
-    return 'derp';
-  });
-
-  rendered = compiler.render(parsed);
-  equal ( rendered, 'derp');
+  equal ( rendered, model.attributes.html );
 });

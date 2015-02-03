@@ -7,9 +7,9 @@ import HTMLRenderer from './renderers/html-renderer';
 
 /**
  * @namespace ContentKit
- * Merge public modules into the common ContentKit namespace.
+ * Public ContentKit Compiler modules
  */
-var ContentKit = window.ContentKit = window.ContentKit || {};
+var ContentKit = window.ContentKit = {};
 ContentKit.Type = Type;
 ContentKit.BlockModel = BlockModel;
 ContentKit.EmbedModel = EmbedModel;

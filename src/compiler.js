@@ -21,9 +21,9 @@ function Compiler(options) {
   mergeWithOptions(this, defaults, options);
 
   // Reference the compiler settings
-  parser.blockTypes  = renderer.blockTypes  = this.blockTypes;
-  parser.markupTypes = renderer.markupTypes = this.markupTypes;
-  parser.includeTypeNames = this.includeTypeNames;
+  this.parser.blockTypes  = this.renderer.blockTypes  = this.blockTypes;
+  this.parser.markupTypes = this.renderer.markupTypes = this.markupTypes;
+  this.parser.includeTypeNames = this.includeTypeNames;
 }
 
 /**
