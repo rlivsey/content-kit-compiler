@@ -32,4 +32,4 @@ bower_components
 .DS_Store
 
 # Builds
-export.sh
+dist
