@@ -1,6 +1,6 @@
 {
   "name": "content-kit-compiler",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Compiler for content-kit suite: parses markup to json and renders json to markup",
   "repository": "https://github.com/bustlelabs/content-kit-compiler",
   "main": "dist/content-kit-compiler.js",
@@ -17,7 +17,7 @@
   "author": "Garth Poitras <garth22@gmail.com> (http://garthpoitras.com/)",
   "license": "MIT",
   "devDependencies": {
-    "content-kit-utils": "0.1.0",
+    "content-kit-utils": "0.1.1",
     "gulp": "^3.8.10",
     "gulp-concat": "^2.4.3",
     "gulp-es6-module-transpiler": "^0.2.1",

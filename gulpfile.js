@@ -10,6 +10,8 @@ var jsSrc = [
   './src/**/*.js'
 ];
 
+var jsEntry = './src/index.js';
+
 var distName = 'content-kit-compiler.js';
 var distDest = './dist/';
 var distPath = distDest + distName;
@@ -28,7 +30,7 @@ gulp.task('lint-built', ['build'], function() {
 });
 
 gulp.task('build', ['lint'], function() {
-  gulp.src(jsSrc)
+  gulp.src(jsEntry)
       .pipe(transpile({ format: 'bundle' }))
       .pipe(concat(distName))
       .pipe(gulp.dest(distDest));

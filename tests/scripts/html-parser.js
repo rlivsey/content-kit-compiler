@@ -211,6 +211,11 @@ test('markup: nested/unsupported tags', function() {
   equal ( parsed[0].markup[4].end, 32 );
 });
 
+test('markup: preserves spaces in empty tags', function() {
+  var rendered = compiler.rerender('<p>Testing a<span> </span><em>space</em></p>');
+  equal ( rendered, '<p>Testing a <em>space</em></p>');
+});
+
 test('markup: self-closing tags with nesting', function() {
   var input = '<p><strong>Blah <br/>blah</strong> <br/>blah</p>';
   var parsed = compiler.parse(input);
@@ -356,8 +361,9 @@ test('blocks: self-closing', function() {
 });
 
 test('converts tags to mapped values', function() {
-  var input = '<b><i>Converts</i> tags</b>.';
+  var input = '<p><b><i>Converts</i> tags</b>.</p>';
   var parsed = compiler.parse(input);
+  var rendered = compiler.render(parsed);
 
   equal ( parsed.length, 1 );
   equal ( parsed[0].value, 'Converts tags.');
@@ -366,4 +372,5 @@ test('converts tags to mapped values', function() {
   equal ( parsed[0].markup[0].start, 0 );
   equal ( parsed[0].markup[0].end, 13 );
   equal ( parsed[0].markup[1].type, Type.ITALIC.id );
+  equal ( rendered, '<p><strong><em>Converts</em> tags</strong>.</p>');
 });
