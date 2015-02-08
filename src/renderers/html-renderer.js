@@ -39,18 +39,27 @@ HTMLRenderer.prototype.rendererFor = function(block) {
 HTMLRenderer.prototype.render = function(model) {
   var html = '';
   var len = model && model.length;
-  var i, block, renderer, renderHook, blockHtml;
+  var i, blockHtml;
 
   for (i = 0; i < len; i++) {
-    block = model[i];
-    renderer = this.rendererFor(block);
-    renderHook = this.typeRenderers[block.type];
-    blockHtml = renderHook ? renderHook.call(renderer, block) : renderer.render(block);
+    blockHtml = this.renderBlock(model[i]);
     if (blockHtml) { 
       html += blockHtml;
     }
   }
+
   return html;
+};
+
+/**
+ * @method renderBlock
+ * @param block
+ * @return String html
+ */
+HTMLRenderer.prototype.renderBlock = function(block) {
+  var renderer = this.rendererFor(block);
+  var renderHook = this.typeRenderers[block.type];
+  return renderHook ? renderHook.call(renderer, block) : renderer.render(block);
 };
 
 export default HTMLRenderer;

@@ -1,6 +1,6 @@
 {
   "name": "content-kit-compiler",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Compiler for content-kit suite: parses markup to json and renders json to markup",
   "repository": "https://github.com/bustlelabs/content-kit-compiler",
   "main": "dist/content-kit-compiler.js",
