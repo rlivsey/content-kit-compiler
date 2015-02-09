@@ -1,5 +1,5 @@
-import { injectIntoString } from 'node_modules/content-kit-utils/src/string-utils';
-import { sumSparseArray } from 'node_modules/content-kit-utils/src/array-utils';
+import { injectIntoString } from '../../node_modules/content-kit-utils/src/string-utils';
+import { sumSparseArray } from '../../node_modules/content-kit-utils/src/array-utils';
 
 /**
  * Builds an opening html tag. i.e. '<a href="http://link.com/" rel="author">'

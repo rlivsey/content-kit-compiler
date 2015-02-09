@@ -18,9 +18,9 @@
   "license": "MIT",
   "devDependencies": {
     "content-kit-utils": "0.1.1",
+    "esperanto": "^0.6.11",
     "gulp": "^3.8.10",
-    "gulp-concat": "^2.4.3",
-    "gulp-es6-module-transpiler": "^0.2.1",
+    "gulp-file": "^0.2.0",
     "gulp-jshint": "^1.9.2",
     "gulp-qunit": "^1.2.1",
     "qunitjs": "^1.17.1"

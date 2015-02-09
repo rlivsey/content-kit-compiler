@@ -1,8 +1,8 @@
 var gulp      = require('gulp');
 var jshint    = require('gulp-jshint');
 var qunit     = require('gulp-qunit');
-var concat    = require('gulp-concat');
-var transpile = require('gulp-es6-module-transpiler');
+var file      = require('gulp-file');
+var esperanto = require('esperanto');
 
 var pkg = require('./package.json');
 
@@ -11,16 +11,15 @@ var jsSrc = [
 ];
 
 var jsEntry = './src/index.js';
-
 var distName = 'content-kit-compiler.js';
 var distDest = './dist/';
 var distPath = distDest + distName;
 var testRunner = './tests/index.html';
 
 gulp.task('lint', function() {
-  gulp.src(jsSrc)
-      .pipe(jshint('.jshintrc'))
-      .pipe(jshint.reporter('default'));
+  return gulp.src(jsSrc)
+             .pipe(jshint('.jshintrc'))
+             .pipe(jshint.reporter('default'));
 });
 
 gulp.task('lint-built', ['build'], function() {
@@ -30,10 +29,12 @@ gulp.task('lint-built', ['build'], function() {
 });
 
 gulp.task('build', ['lint'], function() {
-  gulp.src(jsEntry)
-      .pipe(transpile({ format: 'bundle' }))
-      .pipe(concat(distName))
-      .pipe(gulp.dest(distDest));
+  return esperanto.bundle({
+    entry: jsEntry
+  }).then(function(bundle) {
+    var umd = bundle.toUmd({ name: 'ContentKit' });
+    return file(distName, umd.code, { src: true }).pipe(gulp.dest(distDest));
+  });
 });
 
 gulp.task('test', ['build'], function() {
@@ -42,7 +43,7 @@ gulp.task('test', ['build'], function() {
 });
 
 gulp.task('watch', function() {
-  gulp.watch(jsSrc, ['build']);
+  return gulp.watch(jsSrc, ['build']);
 });
 
-gulp.task('default', ['lint', 'build', /*'lint-built',*/ 'test']);
+gulp.task('default', ['lint', 'build', 'lint-built', 'test']);
