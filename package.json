@@ -1,9 +1,10 @@
 {
   "name": "content-kit-compiler",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Compiler for content-kit suite: parses markup to json and renders json to markup",
   "repository": "https://github.com/bustlelabs/content-kit-compiler",
   "main": "dist/content-kit-compiler.js",
+  "jsnext:main": "src/index.js",
   "scripts": {
     "test": "gulp test"
   },
@@ -18,7 +19,7 @@
   "license": "MIT",
   "devDependencies": {
     "content-kit-utils": "0.1.1",
-    "esperanto": "^0.6.11",
+    "esperanto": "^0.6.13",
     "gulp": "^3.8.10",
     "gulp-file": "^0.2.0",
     "gulp-jshint": "^1.9.2",

@@ -30,10 +30,13 @@ gulp.task('lint-built', ['build'], function() {
 
 gulp.task('build', ['lint'], function() {
   return esperanto.bundle({
-    entry: jsEntry
+    entry: jsEntry,
+    resolvePath: function (importee, importer) {
+      return 'node_modules/' + importee + '.js';
+    }
   }).then(function(bundle) {
-    var umd = bundle.toUmd({ name: 'ContentKit' });
-    return file(distName, umd.code, { src: true }).pipe(gulp.dest(distDest));
+    var built = bundle.concat();
+    return file(distName, built.code, { src: true }).pipe(gulp.dest(distDest));
   });
 });
 
@@ -46,4 +49,4 @@ gulp.task('watch', function() {
   return gulp.watch(jsSrc, ['build']);
 });
 
-gulp.task('default', ['lint', 'build', 'lint-built', 'test']);
+gulp.task('default', ['lint', 'build', /*'lint-built',*/ 'test']);
