@@ -30,6 +30,3 @@ bower_components
 
 # OS
 .DS_Store
-
-# Builds
-dist

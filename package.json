@@ -1,6 +1,6 @@
 {
   "name": "content-kit-compiler",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Parses and renders content to and from the JSON model that backs ContentKit's WYSIWYG Editor",
   "repository": "https://github.com/bustlelabs/content-kit-compiler",
   "main": "dist/content-kit-compiler.js",
