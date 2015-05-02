@@ -1,6 +1,6 @@
-# ContentKit-Compiler [![Build Status](https://travis-ci.org/bustlelabs/content-kit-compiler.svg?branch=master)](https://travis-ci.org/bustlelabs/content-kit-compiler)
+# ContentKit Compiler [![Build Status](https://travis-ci.org/bustlelabs/content-kit-compiler.svg?branch=master)](https://travis-ci.org/bustlelabs/content-kit-compiler)
 
-Parses HTML to ContentKit's JSON schema and renders back to HTML.
+Parses and renders content to and from the JSON model that backs ContentKit's WYSIWYG Editor
 
 ### Examples
 
@@ -90,9 +90,6 @@ _Output:_
 ```html
 <h2>My First Blog Post</h2><h3>The Subtitle</h3><p>This is a paragraph, with a <a href="http://google.com/">link</a> and some <b>formatting</b>.</p><img src="kittens.png" alt="Kittens"/><ul><li>Item A</li> <li>Item B</li></ul>
 ```
-
-#### Customization & Hooks
-API currently in flux
 
 ## Building / Testing
 ```
