@@ -1,6 +1,6 @@
 {
   "name": "content-kit-compiler",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Parses and renders content to and from the JSON model that backs ContentKit's WYSIWYG Editor",
   "repository": "https://github.com/bustlelabs/content-kit-compiler",
   "main": "dist/content-kit-compiler.js",
@@ -17,6 +17,9 @@
   ],
   "author": "Garth Poitras <garth22@gmail.com> (http://garthpoitras.com/)",
   "license": "MIT",
+  "dependencies": {
+    "jsdom": "3.1.2"
+  },
   "devDependencies": {
     "content-kit-utils": "0.1.2",
     "esperanto": "^0.6.31",
@@ -24,7 +27,6 @@
     "gulp-file": "^0.2.0",
     "gulp-jshint": "^1.10.0",
     "gulp-qunit": "^1.2.1",
-    "jsdom": "3.1.2",
     "qunitjs": "^1.18.0"
   }
 }
