@@ -5,11 +5,34 @@ import { DefaultBlockTypeSet, DefaultMarkupTypeSet } from '../types/default-type
 import { mergeWithOptions } from 'content-kit-utils/src/object-utils';
 import { toArray } from 'content-kit-utils/src/array-utils';
 import { trim, trimLeft, sanitizeWhitespace } from 'content-kit-utils/src/string-utils';
-import { DOMParsingNode, textOfNode, unwrapNode, attributesForNode } from 'content-kit-utils/src/node-utils';
+import { textOfNode, unwrapNode, attributesForNode } from 'content-kit-utils/src/node-utils';
 
-var ELEMENT_NODE = window.Node && Node.ELEMENT_NODE || 1;
-var TEXT_NODE    = window.Node && Node.TEXT_NODE    || 3;
+var ELEMENT_NODE = 1;
+var TEXT_NODE    = 3;
 var defaultAttributeBlacklist = { 'style' : 1, 'class' : 1 };
+
+/**
+ * Abstracted `document` between node.js and browser
+*/
+var parserDocument = (function() {
+  // node.js
+  if (typeof exports === 'object') {
+    var jsdom = require('jsdom').jsdom;
+    return jsdom();
+  }
+
+  // A document instance separate from the html page document. (if browser supports it)
+  // Prevents images, scripts, and styles from executing while parsing
+  var implementation = document.implementation;
+  var createHTMLDocument = implementation.createHTMLDocument;
+  if (createHTMLDocument) {
+    return createHTMLDocument.call(implementation, '');
+  }
+
+  // return standard browser document
+  return document;
+}());
+
 
 /**
  * Returns the last block in the set or creates a default block if none exist yet.
@@ -57,9 +80,10 @@ function HTMLParser(options) {
  * @return Array Parsed JSON content array
  */
 HTMLParser.prototype.parse = function(html) {
-  DOMParsingNode.innerHTML = sanitizeWhitespace(html);
+  var parsingNode = parserDocument.createElement('div');
+  parsingNode.innerHTML = sanitizeWhitespace(html);
 
-  var nodes = toArray(DOMParsingNode.childNodes);
+  var nodes = toArray(parsingNode.childNodes);
   var nodeCount = nodes.length;
   var blocks = [];
   var i, node, nodeType, block, text;
