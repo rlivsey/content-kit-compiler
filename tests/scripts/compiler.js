@@ -1,5 +1,11 @@
-module('Compiler');
+QUnit.module('Compiler');
 
+var ContentKit;
+if (typeof exports === 'object') {
+  ContentKit = require('../../dist/content-kit-compiler');
+} else {
+  ContentKit = window.ContentKit;
+}
 
 test('can create a Compiler', function() {
   var compiler = new ContentKit.Compiler();

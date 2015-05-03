@@ -1,8 +1,7 @@
-import Compiler from './compiler';
 import ContentKit from './main';
 
 if (typeof exports === 'object') {
-  module.exports = Compiler;
+  module.exports = ContentKit;
 } else {
   window.ContentKit = ContentKit;
 }

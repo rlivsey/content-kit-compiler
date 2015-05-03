@@ -1,5 +1,71 @@
 (function () { 'use strict';
 
+  var RegExpTrim        = /^\s+|\s+$/g;
+  var RegExpTrimLeft    = /^\s+/;
+  var RegExpWSChars     = /(\r\n|\n|\r|\t)/gm;
+  var RegExpMultiWS     = /\s+/g;
+  var RegExpNonAlphaNum = /[^a-zA-Z\d]/g;
+
+  /**
+   * String.prototype.trim polyfill
+   * Removes whitespace at beginning and end of string
+   */
+  function trim(string) {
+    return string ? (string + '').replace(RegExpTrim, '') : '';
+  }
+
+  /**
+   * String.prototype.trimLeft polyfill
+   * Removes whitespace at beginning of string
+   */
+  function trimLeft(string) {
+    return string ? (string + '').replace(RegExpTrimLeft, '') : '';
+  }
+
+  /**
+   * Replaces non-alphanumeric chars with underscores
+   */
+  function underscore(string) {
+    return string ? trim(string + '').replace(RegExpNonAlphaNum, '_') : '';
+  }
+
+  /**
+   * Cleans line breaks, tabs, then multiple occuring whitespaces.
+   */
+  function sanitizeWhitespace(string) {
+    return string ? (string + '').replace(RegExpWSChars, '').replace(RegExpMultiWS, ' ') : '';
+  }
+
+  /**
+   * Injects a string into another string at the index specified
+   */
+  function injectIntoString(string, injection, index) {
+    return string.substr(0, index) + injection + string.substr(index);
+  }
+
+  function Type(options) {
+    if (options) {
+      this.name = underscore(options.name || options.tag).toUpperCase();
+      this.isTextType = options.isTextType !== undefined ? options.isTextType : true;
+
+      if (options.id !== undefined) {
+        this.id = options.id;
+      }
+      if (options.tag) {
+        this.tag = options.tag.toLowerCase();
+        this.selfClosing = /^(br|img|hr|meta|link|embed)$/i.test(this.tag);
+        if (options.mappedTags) {
+          this.mappedTags = options.mappedTags;
+        }
+      }
+
+      // Register the type as constant
+      Type[this.name] = this;
+    }
+  }
+
+  var types_type = Type;
+
   /**
    * @class Model
    * @constructor
@@ -96,6 +162,65 @@
 
   var models_block = BlockModel;
 
+  function EmbedModel(options) {
+    if (!options) { return null; }
+
+    models_model.call(this, {
+      type: types_type.EMBED.id,
+      type_name: types_type.EMBED.name,
+      attributes: {}
+    });
+
+    // Massage the oEmbed data
+    var attributes = this.attributes;
+    var embedType = options.type;
+    var providerName = options.provider_name;
+    var embedUrl = options.url;
+    var embedTitle = options.title;
+    var embedThumbnail = options.thumbnail_url;
+    var embedHtml = options.html;
+
+    if (embedType)    { attributes.embed_type = embedType; }
+    if (providerName) { attributes.provider_name = providerName; }
+    if (embedUrl)     { attributes.url = embedUrl; }
+    if (embedTitle)   { attributes.title = embedTitle; }
+
+    if (embedType === 'photo') {
+      attributes.thumbnail = options.media_url || embedUrl;
+    } else if (embedThumbnail) {
+      attributes.thumbnail = embedThumbnail;
+    }
+
+    if (embedHtml && (embedType === 'rich' || embedType === 'video')) {
+      attributes.html = embedHtml;
+    }
+  }
+
+  var embed = EmbedModel;
+
+  /**
+   * Abstracted `document` between node.js and browser
+  */
+
+  var doc;
+
+  if (typeof exports === 'object') {
+    var jsdom = require('jsdom').jsdom;
+    doc = jsdom();
+  } else {
+    // A document instance separate from the html page document. (if browser supports it)
+    // Prevents images, scripts, and styles from executing while parsing
+    var implementation = document.implementation;
+    var createHTMLDocument = implementation.createHTMLDocument;
+    if (createHTMLDocument) {
+      doc = createHTMLDocument.call(implementation, '');
+    } else {
+      doc = document;
+    }
+  }
+
+  var parserDocument = doc;
+
   function MarkupModel(options) {
     options = options || {};
     models_model.call(this, options);
@@ -106,72 +231,6 @@
   inherit(MarkupModel, models_model);
 
   var models_markup = MarkupModel;
-
-  var RegExpTrim        = /^\s+|\s+$/g;
-  var RegExpTrimLeft    = /^\s+/;
-  var RegExpWSChars     = /(\r\n|\n|\r|\t)/gm;
-  var RegExpMultiWS     = /\s+/g;
-  var RegExpNonAlphaNum = /[^a-zA-Z\d]/g;
-
-  /**
-   * String.prototype.trim polyfill
-   * Removes whitespace at beginning and end of string
-   */
-  function trim(string) {
-    return string ? (string + '').replace(RegExpTrim, '') : '';
-  }
-
-  /**
-   * String.prototype.trimLeft polyfill
-   * Removes whitespace at beginning of string
-   */
-  function trimLeft(string) {
-    return string ? (string + '').replace(RegExpTrimLeft, '') : '';
-  }
-
-  /**
-   * Replaces non-alphanumeric chars with underscores
-   */
-  function underscore(string) {
-    return string ? trim(string + '').replace(RegExpNonAlphaNum, '_') : '';
-  }
-
-  /**
-   * Cleans line breaks, tabs, then multiple occuring whitespaces.
-   */
-  function sanitizeWhitespace(string) {
-    return string ? (string + '').replace(RegExpWSChars, '').replace(RegExpMultiWS, ' ') : '';
-  }
-
-  /**
-   * Injects a string into another string at the index specified
-   */
-  function injectIntoString(string, injection, index) {
-    return string.substr(0, index) + injection + string.substr(index);
-  }
-
-  function Type(options) {
-    if (options) {
-      this.name = underscore(options.name || options.tag).toUpperCase();
-      this.isTextType = options.isTextType !== undefined ? options.isTextType : true;
-
-      if (options.id !== undefined) {
-        this.id = options.id;
-      }
-      if (options.tag) {
-        this.tag = options.tag.toLowerCase();
-        this.selfClosing = /^(br|img|hr|meta|link|embed)$/i.test(this.tag);
-        if (options.mappedTags) {
-          this.mappedTags = options.mappedTags;
-        }
-      }
-
-      // Register the type as constant
-      Type[this.name] = this;
-    }
-  }
-
-  var types_type = Type;
 
   function TypeSet(types) {
     var len = types && types.length, i;
@@ -327,29 +386,6 @@
   var ELEMENT_NODE = 1;
   var TEXT_NODE    = 3;
   var defaultAttributeBlacklist = { 'style' : 1, 'class' : 1 };
-
-  /**
-   * Abstracted `document` between node.js and browser
-  */
-  var parserDocument = (function() {
-    // node.js
-    if (typeof exports === 'object') {
-      var jsdom = require('jsdom').jsdom;
-      return jsdom();
-    }
-
-    // A document instance separate from the html page document. (if browser supports it)
-    // Prevents images, scripts, and styles from executing while parsing
-    var implementation = document.implementation;
-    var createHTMLDocument = implementation.createHTMLDocument;
-    if (createHTMLDocument) {
-      return createHTMLDocument.call(implementation, '');
-    }
-
-    // return standard browser document
-    return document;
-  }());
-
 
   /**
    * Returns the last block in the set or creates a default block if none exist yet.
@@ -751,42 +787,6 @@
 
   var compiler = Compiler;
 
-  function EmbedModel(options) {
-    if (!options) { return null; }
-
-    models_model.call(this, {
-      type: types_type.EMBED.id,
-      type_name: types_type.EMBED.name,
-      attributes: {}
-    });
-
-    // Massage the oEmbed data
-    var attributes = this.attributes;
-    var embedType = options.type;
-    var providerName = options.provider_name;
-    var embedUrl = options.url;
-    var embedTitle = options.title;
-    var embedThumbnail = options.thumbnail_url;
-    var embedHtml = options.html;
-
-    if (embedType)    { attributes.embed_type = embedType; }
-    if (providerName) { attributes.provider_name = providerName; }
-    if (embedUrl)     { attributes.url = embedUrl; }
-    if (embedTitle)   { attributes.title = embedTitle; }
-
-    if (embedType === 'photo') {
-      attributes.thumbnail = options.media_url || embedUrl;
-    } else if (embedThumbnail) {
-      attributes.thumbnail = embedThumbnail;
-    }
-
-    if (embedHtml && (embedType === 'rich' || embedType === 'video')) {
-      attributes.html = embedHtml;
-    }
-  }
-
-  var embed = EmbedModel;
-
   var ContentKit = {};
   ContentKit.Type = types_type;
   ContentKit.BlockModel = models_block;
@@ -798,7 +798,7 @@
   var main = ContentKit;
 
   if (typeof exports === 'object') {
-    module.exports = compiler;
+    module.exports = main;
   } else {
     window.ContentKit = main;
   }

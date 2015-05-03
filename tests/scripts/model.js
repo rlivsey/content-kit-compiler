@@ -1,5 +1,11 @@
-module('Model');
+QUnit.module('Model');
 
+var ContentKit;
+if (typeof exports === 'object') {
+  ContentKit = require('../../dist/content-kit-compiler');
+} else {
+  ContentKit = window.ContentKit;
+}
 
 test('can create a BlockModel', function() {
   var model = new ContentKit.BlockModel();

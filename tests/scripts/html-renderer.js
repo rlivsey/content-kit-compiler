@@ -1,4 +1,13 @@
-module('HTMLRenderer');
+QUnit.module('HTMLRenderer');
+
+var ContentKit, doc;
+if (typeof exports === 'object') {
+  ContentKit = require('../../dist/content-kit-compiler');
+  doc = require('jsdom').jsdom();
+} else {
+  ContentKit = window.ContentKit;
+  doc = document;
+}
 
 var compiler = new ContentKit.Compiler();
 
@@ -12,7 +21,7 @@ test('render', function() {
 
 test('render from innerHTML', function() {
   var input = '<p>This is <em>italic</em>, this is <strong>bold</strong>, this is <em><strong>both styles</strong></em></p>';
-  var element = document.createElement('div');
+  var element = doc.createElement('div');
   element.innerHTML = input;
   var parsed = compiler.parse(element.innerHTML);
   var rendered = compiler.render(parsed);
@@ -47,18 +56,18 @@ test('render with nested unsupported markup tags', function() {
 });
 
 test('render with attributes', function() {
-  var input = '<p class="test" tabIndex=1><a href="http://google.com/" rel="publisher">Link</a></p>';
+  var input = '<p id="test"><a href="http://google.com/" rel="publisher">Link</a></p>';
   var parsed = compiler.parse(input);
   var rendered = compiler.render(parsed);
 
   // some browsers (firefox) change order of attributes so can't just do direct compare
   // equal ( rendered, input );
 
-  var div = document.createElement('div');
+  var div = doc.createElement('div');
   div.innerHTML = rendered;
   var nodes = div.childNodes;
 
-  equal( nodes[0].tabIndex, 1 );
+  equal( nodes[0].attributes.id.value, 'test' );
   equal( nodes[0].firstChild.attributes.href.value, 'http://google.com/' );
   equal( nodes[0].firstChild.attributes.rel.value, 'publisher' );
 });

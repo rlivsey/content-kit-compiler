@@ -1,4 +1,11 @@
-module('HTMLParser');
+QUnit.module('HTMLParser');
+
+var ContentKit;
+if (typeof exports === 'object') {
+  ContentKit = require('../../dist/content-kit-compiler');
+} else {
+  ContentKit = window.ContentKit;
+}
 
 var compiler = new ContentKit.Compiler();
 var Type = ContentKit.Type;

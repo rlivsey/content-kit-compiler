@@ -1,8 +1,9 @@
-var gulp      = require('gulp');
-var jshint    = require('gulp-jshint');
-var qunit     = require('gulp-qunit');
-var file      = require('gulp-file');
-var esperanto = require('esperanto');
+var gulp         = require('gulp');
+var jshint       = require('gulp-jshint');
+var qunitBrowser = require('gulp-qunit');
+var file         = require('gulp-file');
+var esperanto    = require('esperanto');
+var qunit        = require('qunit');
 
 var pkg = require('./package.json');
 
@@ -22,12 +23,6 @@ gulp.task('lint', function() {
              .pipe(jshint.reporter('default'));
 });
 
-gulp.task('lint-built', ['build'], function() {
-  return gulp.src(distPath)
-             .pipe(jshint('.jshintrc'))
-             .pipe(jshint.reporter('default'));
-});
-
 gulp.task('build', ['lint'], function() {
   return esperanto.bundle({
     entry: jsEntry,
@@ -40,13 +35,32 @@ gulp.task('build', ['lint'], function() {
   });
 });
 
-gulp.task('test', ['build'], function() {
+gulp.task('test:browser', ['build'], function() {
   return gulp.src(testRunner)
-             .pipe(qunit());
+             .pipe(qunitBrowser());
 });
+
+gulp.task('test:server', ['build'], function(callback) {
+  var fs = require('fs');
+  var testsDir = './tests/scripts/';
+  var tests = fs.readdirSync(testsDir).map(function(filename) {
+    return testsDir + filename;
+  });
+
+  qunit.setup({
+    log: { errors: true }
+  });
+
+  return qunit.run({
+    code  : distPath,
+    tests : tests
+  }, callback);
+});
+
+gulp.task('test', ['test:browser', 'test:server']);
 
 gulp.task('watch', function() {
   return gulp.watch(jsSrc, ['build']);
 });
 
-gulp.task('default', ['lint', 'build', /*'lint-built',*/ 'test']);
+gulp.task('default', ['lint', 'build', 'test']);
