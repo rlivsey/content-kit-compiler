@@ -147,7 +147,7 @@ HTMLParser.prototype.serializeBlockNode = function(node) {
 /**
  * @method serializeMarkupNode
  * @param node element node to parse
- * @param startIndex 
+ * @param startIndex
  * @return {MarkupModel} markup model
  * Serializes markup of a single html element node (no child elements)
  */

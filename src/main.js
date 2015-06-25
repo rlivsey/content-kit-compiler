@@ -3,6 +3,7 @@ import BlockModel from './models/block';
 import EmbedModel from './models/embed';
 import Compiler from './compiler';
 import HTMLParser from './parsers/html-parser';
+import NewHTMLParser from './parsers/new-html-parser';
 import HTMLRenderer from './renderers/html-renderer';
 
 /**
@@ -14,6 +15,7 @@ ContentKit.Type = Type;
 ContentKit.BlockModel = BlockModel;
 ContentKit.EmbedModel = EmbedModel;
 ContentKit.Compiler = Compiler;
+ContentKit.NewHTMLParser = NewHTMLParser;
 ContentKit.HTMLParser = HTMLParser;
 ContentKit.HTMLRenderer = HTMLRenderer;
 
