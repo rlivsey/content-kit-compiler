@@ -3,7 +3,7 @@ import { inherit } from 'content-kit-utils/src/object-utils';
 
 /**
  * Ensures block markups at the same index are always in a specific order.
- * For example, so all bold links are consistently marked up 
+ * For example, so all bold links are consistently marked up
  * as <a><b>text</b></a> instead of <b><a>text</a></b>
  */
 function sortBlockMarkups(markups) {

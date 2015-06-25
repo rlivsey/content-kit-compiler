@@ -1,6 +1,7 @@
 import Type from '../types/type';
 import HTMLElementRenderer from './html-element-renderer';
 import HTMLEmbedRenderer from './html-embed-renderer';
+import CardRenderer from './card-renderer';
 import { DefaultBlockTypeSet, DefaultMarkupTypeSet } from '../types/default-types';
 import { mergeWithOptions } from 'content-kit-utils/src/object-utils';
 
@@ -12,7 +13,8 @@ function HTMLRenderer(options) {
   var defaults = {
     blockTypes    : DefaultBlockTypeSet,
     markupTypes   : DefaultMarkupTypeSet,
-    typeRenderers : {}
+    typeRenderers : {},
+    cards         : {}
   };
   mergeWithOptions(this, defaults, options);
 }
@@ -28,6 +30,9 @@ HTMLRenderer.prototype.rendererFor = function(block) {
   if (type === Type.EMBED) {
     return new HTMLEmbedRenderer();
   }
+  if (type === Type.CARD) {
+    return new CardRenderer(this.cards);
+  }
   return new HTMLElementRenderer({ type: type, markupTypes: this.markupTypes });
 };
 
@@ -42,8 +47,9 @@ HTMLRenderer.prototype.render = function(model) {
   var i, blockHtml;
 
   for (i = 0; i < len; i++) {
+    // this is renderModel, not only blocks!!
     blockHtml = this.renderBlock(model[i]);
-    if (blockHtml) { 
+    if (blockHtml) {
       html += blockHtml;
     }
   }

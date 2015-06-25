@@ -11,7 +11,7 @@ Parsing HTML:
 <p>This is a paragraph, with a <a href="http://google.com/">link</a> and some <b>formatting</b>.</p>
 <img src="kittens.png" alt="Kittens"/>
 <ul>
-  <li>Item A</li> 
+  <li>Item A</li>
   <li>Item B</li>
 </ul>
 ```

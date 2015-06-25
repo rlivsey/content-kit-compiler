@@ -12,7 +12,8 @@ var DefaultBlockTypeSet = new TypeSet([
   new Type({ tag: 'blockquote', name: 'quote' }),
   new Type({ tag: 'ul', name: 'list' }),
   new Type({ tag: 'ol', name: 'ordered list' }),
-  new Type({ name: 'embed', isTextType: false })
+  new Type({ name: 'embed', isTextType: false }),
+  new Type({ name: 'card' })
 ]);
 
 /**
