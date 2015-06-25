@@ -301,7 +301,8 @@
     new types_type({ tag: 'blockquote', name: 'quote' }),
     new types_type({ tag: 'ul', name: 'list' }),
     new types_type({ tag: 'ol', name: 'ordered list' }),
-    new types_type({ name: 'embed', isTextType: false })
+    new types_type({ name: 'embed', isTextType: false }),
+    new types_type({ name: 'card' })
   ]);
 
   /**
@@ -659,11 +660,32 @@
 
   var html_embed_renderer = HTMLEmbedRenderer;
 
+  /**
+   * @class CardRenderer
+   * @constructor
+   */
+  function CardRenderer(cards) {
+    this.cards = cards;
+  }
+
+  /**
+   * @method render
+   * @param model a card model
+   * @return String html
+   */
+  CardRenderer.prototype.render = function(model) {
+    var render = this.cards[model.attributes.name];
+    return '<div contenteditable="false">'+render(model.attributes.payload)+'</div>';
+  };
+
+  var card_renderer = CardRenderer;
+
   function HTMLRenderer(options) {
     var defaults = {
       blockTypes    : DefaultBlockTypeSet,
       markupTypes   : DefaultMarkupTypeSet,
-      typeRenderers : {}
+      typeRenderers : {},
+      cards         : {}
     };
     mergeWithOptions(this, defaults, options);
   }
@@ -679,6 +701,9 @@
     if (type === types_type.EMBED) {
       return new html_embed_renderer();
     }
+    if (type === types_type.CARD) {
+      return new card_renderer(this.cards);
+    }
     return new html_element_renderer({ type: type, markupTypes: this.markupTypes });
   };
 
@@ -693,8 +718,9 @@
     var i, blockHtml;
 
     for (i = 0; i < len; i++) {
+      // this is renderModel, not only blocks!!
       blockHtml = this.renderBlock(model[i]);
-      if (blockHtml) { 
+      if (blockHtml) {
         html += blockHtml;
       }
     }
