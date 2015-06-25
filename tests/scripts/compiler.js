@@ -38,17 +38,19 @@ test('registering new types', function() {
   var registeredDivType = compiler.blockTypes.DIV;
   var registeredCityType = compiler.markupTypes.CITE;
 
-  var html = compiler.render([ { type: 9, value: 'test' } ]);
+  // 10 because there were nine types, and the divType is a
+  // new one.
+  var html = compiler.render([ { type: 10, value: 'test' } ]);
 
   ok ( registeredDivType );
   ok ( registeredDivType instanceof ContentKit.Type);
   equal ( registeredDivType.name, 'DIV' );
   equal ( registeredDivType.tag, 'div' );
   ok ( !registeredDivType.selfClosing );
-  equal ( registeredDivType.id, 9 );
+  equal ( registeredDivType.id, 10 );
   equal ( html, '<div>test</div>' );
 
-  html = compiler.render([ { type: 9, value: 'test', markup: [ { type: 9, start: 0, end:4 } ] } ]);
+  html = compiler.render([ { type: 10, value: 'test', markup: [ { type: 9, start: 0, end:4 } ] } ]);
 
   ok ( registeredCityType );
   ok ( registeredCityType instanceof ContentKit.Type);
