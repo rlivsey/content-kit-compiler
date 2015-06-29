@@ -1,7 +1,7 @@
 import HTMLParser from './parsers/html-parser';
 import HTMLRenderer from './renderers/html-renderer';
 import { DefaultBlockTypeSet, DefaultMarkupTypeSet } from './types/default-types';
-import { mergeWithOptions } from 'content-kit-utils/src/object-utils';
+import { mergeWithOptions } from 'content-kit-utils';
 
 /**
  * @class Compiler
