@@ -1,4 +1,10 @@
-QUnit.module('HTMLParser');
+const MARKUP_SECTION = 1;
+
+function buildDOM(html) {
+  var div = document.createElement('div');
+  div.innerHTML = html;
+  return div;
+}
 
 var ContentKit;
 if (typeof exports === 'object') {
@@ -7,116 +13,175 @@ if (typeof exports === 'object') {
   ContentKit = window.ContentKit;
 }
 
-function section(type, value, options) {
-}
+QUnit.module('HTMLParser');
 
 var parser = new ContentKit.NewHTMLParser();
 
 test('parse empty content', function() {
-  var post = parser.parse('');
+  var post = parser.parse(buildDOM(''));
   deepEqual(
     post,
     { sections: [] }
   );
 });
 
+test('p tag (section markup) should create a block', function() {
+  var post = parser.parse(buildDOM('<p>text</p>'));
+
+  deepEqual( post, {
+    sections: [{
+      type: MARKUP_SECTION,
+      tagName: 'P',
+      markups: [{
+        open: [],
+        close: 0,
+        value: 'text'
+      }]
+    }]
+  });
+});
+
+test('strong tag (stray markup) without a block should create a block', function() {
+  var post = parser.parse(buildDOM('<strong>text</strong>'));
+
+  deepEqual( post, {
+    sections: [{
+      type: MARKUP_SECTION,
+      tagName: 'P',
+      markups: [{
+        open: [{
+          tagName: 'STRONG'
+        }],
+        close: 1,
+        value: 'text'
+      }]
+    }]
+  });
+});
+
+test('strong tag (stray markup) without a block should create a block', function() {
+  var post = parser.parse(buildDOM('<strong><em>stray</em> markup tags</strong>.'));
+  deepEqual( post, {
+    sections: [{
+      type: MARKUP_SECTION,
+      tagName: 'P',
+      markups: [{
+        open: [{
+          tagName: 'STRONG'
+        },{
+          tagName: 'EM'
+        }],
+        close: 1,
+        value: 'stray'
+      },{
+        open: [],
+        close: 1,
+        value: ' markup tags'
+      },{
+        open: [],
+        close: 0,
+        value: '.'
+      }]
+    }]
+  });
+});
+
+test('stray text (stray markup) should create a block', function() {
+  var post = parser.parse(buildDOM('text'));
+
+  deepEqual( post, {
+    sections: [{
+      type: MARKUP_SECTION,
+      tagName: 'P',
+      markups: [{
+        open: [],
+        close: 0,
+        value: 'text'
+      }]
+    }]
+  });
+});
+
+test('strong tag (stray markup) without a block should create a block', function() {
+  var post = parser.parse(buildDOM('start <strong>bold</strong> end'));
+  deepEqual( post, {
+    sections: [{
+      type: MARKUP_SECTION,
+      tagName: 'P',
+      markups: [{
+        open: [],
+        close: 0,
+        value: 'start '
+      },{
+        open: [{
+          tagName: 'STRONG'
+        }],
+        close: 1,
+        value: 'bold'
+      },{
+        open: [],
+        close: 0,
+        value: ' end'
+      }]
+    }]
+  });
+});
+
+test('italic tag (stray markup) without a block should create a block', function() {
+  var post = parser.parse(buildDOM('<em>text</em>'));
+  deepEqual( post, {
+    sections: [{
+      type: MARKUP_SECTION,
+      tagName: 'P',
+      markups: [{
+        open: [{
+          tagName: 'EM'
+        }],
+        close: 1,
+        value: 'text'
+      }]
+    }]
+  });
+});
+
+test('u tag (stray markup) without a block should create a block', function() {
+  var post = parser.parse(buildDOM('<u>text</u>'));
+  deepEqual( post, {
+    sections: [{
+      type: MARKUP_SECTION,
+      tagName: 'P',
+      markups: [{
+        open: [{
+          tagName: 'U'
+        }],
+        close: 1,
+        value: 'text'
+      }]
+    }]
+  });
+});
+
+test('a tag (stray markup) without a block should create a block', function() {
+  var url = "http://test.com";
+  var post = parser.parse(buildDOM('<a href="'+url+'">text</u>'));
+  deepEqual( post, {
+    sections: [{
+      type: MARKUP_SECTION,
+      tagName: 'P',
+      markups: [{
+        open: [{
+          tagName: 'A',
+          attributes: ['href', url]
+        }],
+        close: 1,
+        value: 'text'
+      }]
+    }]
+  });
+});
+
 /*
-test('properly handle empty content', function() {
-  var parsed = compiler.parse();
-  deepEqual (parsed, []);
-
-  parsed = compiler.parse('');
-  deepEqual (parsed, []);
-
-  parsed = compiler.parse(' ');
-  deepEqual (parsed, []);
-});
-
-test('stray markup without a block should create a default block', function() {
-  var parsed = compiler.parse('<strong>text</strong>');
-
-  equal ( parsed.length, 1 );
-  equal ( parsed[0].value, 'text' );
-  equal ( parsed[0].type, Type.PARAGRAPH.id );
-  equal ( parsed[0].markup.length, 1);
-  equal ( parsed[0].markup[0].type, Type.BOLD.id );
-  equal ( parsed[0].markup[0].start, 0 );
-  equal ( parsed[0].markup[0].end, 4 );
-
-  parsed = compiler.parse('<strong><em>stray</em> markup tags</strong>.');
-  equal ( parsed.length, 1 );
-  equal ( parsed[0].value, 'stray markup tags.' );
-  equal ( parsed[0].type, Type.PARAGRAPH.id );
-  equal ( parsed[0].markup.length, 2);
-  equal ( parsed[0].markup[0].type, Type.BOLD.id );
-  equal ( parsed[0].markup[0].start, 0 );
-  equal ( parsed[0].markup[0].end, 17 );
-  equal ( parsed[0].markup[1].type, Type.ITALIC.id );
-  equal ( parsed[0].markup[1].start, 0 );
-  equal ( parsed[0].markup[1].end, 5 );
-});
-
-test('stray text without a block should create a default block', function() {
-  var parsed = compiler.parse('text');
-
-  equal ( parsed.length, 1 );
-  equal ( parsed[0].value, 'text' );
-  equal ( parsed[0].type, Type.PARAGRAPH.id );
-});
-
-test('stray content gets appended to previous block element', function() {
-  var parsed = compiler.parse('start <strong>bold</strong> end');
-
-  equal ( parsed.length, 1 );
-  equal ( parsed[0].value, 'start bold end' );
-  equal ( parsed[0].type, Type.PARAGRAPH.id );
-  equal ( parsed[0].markup.length, 1);
-  equal ( parsed[0].markup[0].type, Type.BOLD.id );
-  equal ( parsed[0].markup[0].start, 6);
-  equal ( parsed[0].markup[0].end, 10);
-});
-
-test('markup: bold', function() {
-  var parsed = compiler.parse('<strong>text</strong>');
-  equal ( parsed.length, 1 );
-  equal ( parsed[0].value, 'text' );
-  equal ( parsed[0].markup.length, 1 );
-  equal ( parsed[0].markup[0].type, Type.BOLD.id );
-  equal ( parsed[0].markup[0].start, 0);
-  equal ( parsed[0].markup[0].end, 4);
-});
-
-test('markup: italic', function() {
-  var parsed = compiler.parse('italic <em>text</em>');
-  equal ( parsed.length, 1 );
-  equal ( parsed[0].value, 'italic text' );
-  equal ( parsed[0].markup.length, 1 );
-  equal ( parsed[0].markup[0].type, Type.ITALIC.id );
-  equal ( parsed[0].markup[0].start, 7);
-  equal ( parsed[0].markup[0].end, 11);
-});
-
-test('markup: underline', function() {
-  var parsed = compiler.parse('<u>underline</u> text');
-  equal ( parsed.length, 1 );
-  equal ( parsed[0].value, 'underline text' );
-  equal ( parsed[0].markup.length, 1 );
-  equal ( parsed[0].markup[0].type, Type.UNDERLINE.id );
-  equal ( parsed[0].markup[0].start, 0);
-  equal ( parsed[0].markup[0].end, 9);
-});
-
-test('markup: link', function() {
-  var parsed = compiler.parse('<a href="http://test.com/">link</a>');
-  equal ( parsed.length, 1 );
-  equal ( parsed[0].value, 'link' );
-  equal ( parsed[0].markup.length, 1 );
-  equal ( parsed[0].markup[0].type, Type.LINK.id );
-  equal ( parsed[0].markup[0].start, 0);
-  equal ( parsed[0].markup[0].end, 4);
-  equal ( parsed[0].markup[0].attributes.href, 'http://test.com/');
-});
-
+// FIXME: Implement void element markers
 test('markup: break', function() {
   var parsed = compiler.parse('line <br/>break');
   equal ( parsed.length, 1 );
@@ -126,80 +191,147 @@ test('markup: break', function() {
   equal ( parsed[0].markup[0].start, 5);
   equal ( parsed[0].markup[0].end, 5);
 });
+*/
 
-test('markup: subscript', function() {
-  var parsed = compiler.parse('footnote<sub>1</sub>');
-  equal ( parsed.length, 1 );
-  equal ( parsed[0].value, 'footnote1' );
-  equal ( parsed[0].markup.length, 1 );
-  equal ( parsed[0].markup[0].type, Type.SUBSCRIPT.id );
-  equal ( parsed[0].markup[0].start, 8);
-  equal ( parsed[0].markup[0].end, 9);
+test('sub tag (stray markup) without a block should create a block', function() {
+  var post = parser.parse(buildDOM('footnote<sub>1</sub>'));
+  deepEqual( post, {
+    sections: [{
+      type: MARKUP_SECTION,
+      tagName: 'P',
+      markups: [{
+        open: [],
+        close: 0,
+        value: 'footnote'
+      },{
+        open: [{
+          tagName: 'SUB'
+        }],
+        close: 1,
+        value: '1'
+      }]
+    }]
+  });
 });
 
-test('markup: superscript', function() {
-  var parsed = compiler.parse('e=mc<sup>2</sup>');
-  equal ( parsed.length, 1 );
-  equal ( parsed[0].value, 'e=mc2' );
-  equal ( parsed[0].markup.length, 1 );
-  equal ( parsed[0].markup[0].type, Type.SUPERSCRIPT.id );
-  equal ( parsed[0].markup[0].start, 4);
-  equal ( parsed[0].markup[0].end, 5);
+test('sup tag (stray markup) without a block should create a block', function() {
+  var post = parser.parse(buildDOM('e=mc<sup>2</sup>'));
+  deepEqual( post, {
+    sections: [{
+      type: MARKUP_SECTION,
+      tagName: 'P',
+      markups: [{
+        open: [],
+        close: 0,
+        value: 'e=mc'
+      },{
+        open: [{
+          tagName: 'SUP'
+        }],
+        close: 1,
+        value: '2'
+      }]
+    }]
+  });
 });
 
-test('markup: list items', function() {
-  var parsed = compiler.parse('<ul><li>Item 1</li><li>Item 2</li></ul>');
-  equal ( parsed.length, 1 );
-  equal ( parsed[0].value, 'Item 1Item 2' );
-  equal ( parsed[0].markup.length, 2 );
-  equal ( parsed[0].markup[0].type, Type.LIST_ITEM.id );
-  equal ( parsed[0].markup[0].start, 0 );
-  equal ( parsed[0].markup[0].end, 6 );
-  equal ( parsed[0].markup[1].type, Type.LIST_ITEM.id );
-  equal ( parsed[0].markup[1].start, 6 );
-  equal ( parsed[0].markup[1].end, 12 );
+test('list (stray markup) without a block should create a block', function() {
+  var post = parser.parse(buildDOM('<ul><li>Item 1</li><li>Item 2</li></ul>'));
+  deepEqual( post, {
+    sections: [{
+      type: MARKUP_SECTION,
+      tagName: 'P',
+      markups: [{
+        open: [{
+          tagName: 'UL'
+        }, {
+          tagName: 'LI'
+        }],
+        close: 1,
+        value: 'Item 1'
+      },{
+        open: [{
+          tagName: 'LI'
+        }],
+        close: 2,
+        value: 'Item 2'
+      }]
+    }]
+  });
 });
 
-test('markup: nested tags', function() {
-  var parsed = compiler.parse('<p><em><strong>Double.</strong></em> <strong><em>Double staggered</em> start.</strong> <strong>Double <em>staggered end.</em></strong> <strong>Double <em>staggered</em> middle.</strong></p>');
-
-  equal ( parsed.length, 1 );
-  equal ( parsed[0].value, 'Double. Double staggered start. Double staggered end. Double staggered middle.' );
-  equal ( parsed[0].markup.length, 8 );
-
-  equal ( parsed[0].markup[0].type, Type.ITALIC.id );
-  equal ( parsed[0].markup[0].start, 0 );
-  equal ( parsed[0].markup[0].end, 7 );
-
-  equal ( parsed[0].markup[1].type, Type.BOLD.id );
-  equal ( parsed[0].markup[1].start, 0 );
-  equal ( parsed[0].markup[1].end, 7 );
-
-  equal ( parsed[0].markup[2].type, Type.BOLD.id );
-  equal ( parsed[0].markup[2].start, 8 );
-  equal ( parsed[0].markup[2].end, 31 );
-
-  equal ( parsed[0].markup[3].type, Type.ITALIC.id );
-  equal ( parsed[0].markup[3].start, 8 );
-  equal ( parsed[0].markup[3].end, 24 );
-
-  equal ( parsed[0].markup[4].type, Type.BOLD.id );
-  equal ( parsed[0].markup[4].start, 32 );
-  equal ( parsed[0].markup[4].end, 53 );
-
-  equal ( parsed[0].markup[5].type, Type.ITALIC.id );
-  equal ( parsed[0].markup[5].start, 39 );
-  equal ( parsed[0].markup[5].end, 53 );
-
-  equal ( parsed[0].markup[6].type, Type.BOLD.id );
-  equal ( parsed[0].markup[6].start, 54 );
-  equal ( parsed[0].markup[6].end, 78 );
-
-  equal ( parsed[0].markup[7].type, Type.ITALIC.id );
-  equal ( parsed[0].markup[7].start, 61 );
-  equal ( parsed[0].markup[7].end, 70 );
+test('nested tags (section markup) should create a block', function() {
+  var post = parser.parse(buildDOM('<p><em><strong>Double.</strong></em> <strong><em>Double staggered</em> start.</strong> <strong>Double <em>staggered end.</em></strong> <strong>Double <em>staggered</em> middle.</strong></p>'));
+  deepEqual( post, {
+    sections: [{
+      type: MARKUP_SECTION,
+      tagName: 'P',
+      markups: [{
+        open: [{
+          tagName: 'EM'
+        }, {
+          tagName: 'STRONG'
+        }],
+        close: 2,
+        value: 'Double.'
+      },{
+        open: [],
+        close: 0,
+        value: ' '
+      },{
+        open: [{
+          tagName: 'STRONG'
+        },{
+          tagName: 'EM'
+        }],
+        close: 1,
+        value: 'Double staggered'
+      },{
+        open: [],
+        close: 1,
+        value: ' start.'
+      },{
+        open: [],
+        close: 0,
+        value: ' '
+      },{
+        open: [{
+          tagName: 'STRONG'
+        }],
+        close: 0,
+        value: 'Double '
+      },{
+        open: [{
+          tagName: 'EM'
+        }],
+        close: 2,
+        value: 'staggered end.'
+      },{
+        open: [],
+        close: 0,
+        value: ' '
+      },{
+        open: [{
+          tagName: 'STRONG'
+        }],
+        close: 0,
+        value: 'Double '
+      },{
+        open: [{
+          tagName: 'EM'
+        }],
+        close: 1,
+        value: 'staggered'
+      },{
+        open: [],
+        close: 1,
+        value: ' middle.'
+      }]
+    }]
+  });
 });
 
+/*
 test('markup: nested/unsupported tags', function() {
   var parsed = compiler.parse('<p>Test one <strong>two</strong> <em><strong>three</strong></em> <span>four</span> <span><strong>five</strong></span> <strong><span>six</span></strong> <strong></strong><span></span><strong><span></span></strong><span><strong></strong></span>seven</p>');
 
