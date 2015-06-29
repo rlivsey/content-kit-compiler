@@ -31,3 +31,4 @@ bower_components
 # OS
 .DS_Store
 dist/
+tmp
