@@ -1,14 +1,12 @@
+/* global QUnit, test, ok, equal, deepEqual */
 QUnit.module('HTMLParser');
 
-var ContentKit;
-if (typeof exports === 'object') {
-  ContentKit = require('../../dist/content-kit-compiler');
-} else {
-  ContentKit = window.ContentKit;
-}
+import {
+  Compiler,
+  Type
+} from 'content-kit-compiler';
 
-var compiler = new ContentKit.Compiler();
-var Type = ContentKit.Type;
+var compiler = new Compiler();
 
 test('propertly handle empty content', function() {
   var parsed = compiler.parse();

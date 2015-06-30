@@ -1,3 +1,4 @@
+/* global QUnit, ok, equal, test, deepEqual */
 const MARKUP_SECTION = 1;
 
 function buildDOM(html) {
@@ -6,14 +7,9 @@ function buildDOM(html) {
   return div;
 }
 
-var ContentKit;
-if (typeof exports === 'object') {
-  ContentKit = require('../../dist/content-kit-compiler');
-} else {
-  ContentKit = window.ContentKit;
-}
+import ContentKit from 'content-kit-compiler';
 
-QUnit.module('HTMLParser');
+QUnit.module('new HTMLParser');
 
 var parser = new ContentKit.NewHTMLParser();
 

@@ -92,7 +92,8 @@ _Output:_
 ```
 
 ## Building / Testing
-```
-npm install
-gulp
-```
+
+ * `bower install`
+ * `npm install`
+ * `npm run serve` and visit http://localhost:4200/tests or
+ * `npm test` (uses testem to run tests in phantom and chrome)

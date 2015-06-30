@@ -1,36 +1,37 @@
+/* global QUnit, test, ok, equal, deepEqual */
 QUnit.module('Compiler');
 
-var ContentKit;
-if (typeof exports === 'object') {
-  ContentKit = require('../../dist/content-kit-compiler');
-} else {
-  ContentKit = window.ContentKit;
-}
+import {
+  Compiler,
+  HTMLParser,
+  HTMLRenderer,
+  Type
+} from 'content-kit-compiler';
 
 test('can create a Compiler', function() {
-  var compiler = new ContentKit.Compiler();
+  var compiler = new Compiler();
   ok ( compiler, 'Compiler created' );
-  ok ( compiler instanceof ContentKit.Compiler, 'instance of Compiler' );
+  ok ( compiler instanceof Compiler, 'instance of Compiler' );
 });
 
 test('can set options when creating a Compiler', function() {
-  var customParser = new ContentKit.HTMLParser();
-  var customRenderer = new ContentKit.HTMLRenderer();
-  var compiler = new ContentKit.Compiler({
+  var customParser = new HTMLParser();
+  var customRenderer = new HTMLRenderer();
+  var compiler = new Compiler({
     parser: customParser,
     renderer: customRenderer
   });
 
   deepEqual ( compiler.parser, customParser );
   deepEqual ( compiler.renderer, customRenderer );
-  ok ( compiler.parser instanceof ContentKit.HTMLParser );
-  ok ( compiler.renderer instanceof ContentKit.HTMLRenderer );
+  ok ( compiler.parser instanceof HTMLParser );
+  ok ( compiler.renderer instanceof HTMLRenderer );
 });
 
 test('registering new types', function() {
-  var compiler = new ContentKit.Compiler();
-  var divType = new ContentKit.Type({ tag : 'div' });
-  var citeType = new ContentKit.Type({ tag : 'cite' });
+  var compiler = new Compiler();
+  var divType = new Type({ tag : 'div' });
+  var citeType = new Type({ tag : 'cite' });
 
   compiler.registerBlockType(divType);
   compiler.registerMarkupType(citeType);
@@ -43,7 +44,7 @@ test('registering new types', function() {
   var html = compiler.render([ { type: 10, value: 'test' } ]);
 
   ok ( registeredDivType );
-  ok ( registeredDivType instanceof ContentKit.Type);
+  ok ( registeredDivType instanceof Type);
   equal ( registeredDivType.name, 'DIV' );
   equal ( registeredDivType.tag, 'div' );
   ok ( !registeredDivType.selfClosing );
@@ -53,7 +54,7 @@ test('registering new types', function() {
   html = compiler.render([ { type: 10, value: 'test', markup: [ { type: 9, start: 0, end:4 } ] } ]);
 
   ok ( registeredCityType );
-  ok ( registeredCityType instanceof ContentKit.Type);
+  ok ( registeredCityType instanceof Type);
   equal ( registeredCityType.name, 'CITE' );
   equal ( registeredCityType.tag, 'cite' );
   ok ( !registeredCityType.selfClosing );
