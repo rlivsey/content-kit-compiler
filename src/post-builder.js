@@ -1,12 +1,16 @@
 const MARKUP_SECTION = 1;
 
 var builder = {
-  generateSection: function(tagName) {
-    return {
+  generateSection: function(tagName, attributes) {
+    var section = {
       type: MARKUP_SECTION,
       tagName: tagName,
       markups: []
     };
+    if (attributes && attributes.length) {
+      section.attributes = attributes;
+    }
+    return section;
   },
   generateMarkup: function(open, close, value) {
     return {
