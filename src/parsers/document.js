@@ -4,7 +4,7 @@
 
 var doc;
 
-if (typeof exports === 'object') {
+if (typeof module !== 'undefined' && module.exports) {
   var jsdom = require('jsdom').jsdom;
   doc = jsdom();
 } else {

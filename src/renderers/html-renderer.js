@@ -3,7 +3,7 @@ import HTMLElementRenderer from './html-element-renderer';
 import HTMLEmbedRenderer from './html-embed-renderer';
 import CardRenderer from './card-renderer';
 import { DefaultBlockTypeSet, DefaultMarkupTypeSet } from '../types/default-types';
-import { mergeWithOptions } from 'content-kit-utils/src/object-utils';
+import { mergeWithOptions } from 'content-kit-utils';
 
 /**
  * @class HTMLRenderer

@@ -1,4 +1,4 @@
-import { underscore } from 'content-kit-utils/src/string-utils';
+import { underscore } from 'content-kit-utils';
 
 /**
  * @class Type

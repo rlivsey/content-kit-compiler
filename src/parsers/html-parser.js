@@ -3,10 +3,10 @@ import BlockModel from '../models/block';
 import MarkupModel from '../models/markup';
 import Type from '../types/type';
 import { DefaultBlockTypeSet, DefaultMarkupTypeSet } from '../types/default-types';
-import { mergeWithOptions } from 'content-kit-utils/src/object-utils';
-import { toArray } from 'content-kit-utils/src/array-utils';
-import { trim, trimLeft, sanitizeWhitespace } from 'content-kit-utils/src/string-utils';
-import { textOfNode, unwrapNode, attributesForNode } from 'content-kit-utils/src/node-utils';
+import { mergeWithOptions } from 'content-kit-utils';
+import { toArray } from 'content-kit-utils';
+import { trim, trimLeft, sanitizeWhitespace } from 'content-kit-utils';
+import { textOfNode, unwrapNode, attributesForNode } from 'content-kit-utils';
 
 var ELEMENT_NODE = 1;
 var TEXT_NODE    = 3;

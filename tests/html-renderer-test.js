@@ -1,15 +1,13 @@
+/* global QUnit, test, ok, equal, deepEqual */
 QUnit.module('HTMLRenderer');
 
-var ContentKit, doc;
-if (typeof exports === 'object') {
-  ContentKit = require('../../dist/content-kit-compiler');
-  doc = require('jsdom').jsdom();
-} else {
-  ContentKit = window.ContentKit;
-  doc = document;
-}
+import {
+  Compiler,
+  Type,
+  doc
+} from 'content-kit-compiler';
 
-var compiler = new ContentKit.Compiler();
+var compiler = new Compiler();
 
 test('render', function() {
   var input = '<p>This is <em>italic</em>, this is <strong>bold</strong>, this is <em><strong>both styles</strong></em></p>';
@@ -90,7 +88,7 @@ test('render self-closing elements', function() {
 
 test('render embeds', function() {
   var model = {
-    type: ContentKit.Type.EMBED.id,
+    type: Type.EMBED.id,
     attributes: {
       html: '<iframe src="http://test"></iframe>'
     }
