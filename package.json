@@ -7,7 +7,8 @@
   "scripts": {
     "test": "testem ci",
     "build": "rm -rf dist && broccoli build dist",
-    "prepublish": "npm run build",
+    "prepublish": "./scripts/build-if-necessary.sh",
+    "install": "./scripts/build-if-necessary.sh",
     "serve": "brocolli serve"
   },
   "keywords": [
