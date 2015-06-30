@@ -21,7 +21,8 @@
   "author": "Garth Poitras <garth22@gmail.com> (http://garthpoitras.com/)",
   "license": "MIT",
   "dependencies": {
-    "jsdom": "3.1.2"
+    "jsdom": "3.1.2",
+    "content-kit-utils": "^0.2.0"
   },
   "devDependencies": {
     "broccoli": "^0.16.3",
@@ -30,7 +31,6 @@
     "broccoli-funnel": "^0.2.3",
     "broccoli-merge-trees": "^0.2.1",
     "broccoli-multi-builder": "^0.1.0",
-    "content-kit-utils": "^0.2.0",
     "esperanto": "^0.6.31",
     "gulp": "^3.8.11",
     "gulp-file": "^0.2.0",
