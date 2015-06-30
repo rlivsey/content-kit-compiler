@@ -5,7 +5,7 @@
   "repository": "https://github.com/bustlelabs/content-kit-compiler",
   "main": "dist/content-kit-compiler/index.js",
   "scripts": {
-    "test": "testem",
+    "test": "testem ci",
     "build": "rm -rf dist && broccoli build dist",
     "prepublish": "npm run build",
     "serve": "brocolli serve"
