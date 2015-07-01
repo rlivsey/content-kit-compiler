@@ -1,6 +1,6 @@
 var builder = require('broccoli-multi-builder');
 var mergeTrees = require('broccoli-merge-trees');
-var testTreeBuilder = require('./broccoli/test-tree-builder');
+var testTreeBuilder = require('broccoli-test-builder');
 
 var buildOptions = {
   packageName: require('./package.json').name,
@@ -15,15 +15,9 @@ var buildOptions = {
   ]
 };
 
-var amdTree = builder.build('amd', buildOptions),
-    commonjsTree = builder.build('commonjs', buildOptions);
-
-buildOptions.isGlobal = true;
-var globalTree = builder.build('global', buildOptions);
-
 module.exports = mergeTrees([
-  amdTree,
-  globalTree,
-  commonjsTree,
+  builder.build('amd', buildOptions),
+  builder.build('global', buildOptions),
+  builder.build('commonjs', buildOptions),
   testTreeBuilder.build()
 ]);

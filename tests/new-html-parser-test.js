@@ -1,4 +1,4 @@
-/* global QUnit, ok, equal, test, deepEqual */
+/* global QUnit, test, deepEqual */
 const MARKUP_SECTION = 1;
 
 function buildDOM(html) {
@@ -463,7 +463,7 @@ test('attributes filters out inline styles and classes', function() {
       tagName: 'P',
       markups: [{
         open: [{
-          tagName: 'B',
+          tagName: 'B'
         }],
         close: 1,
         value: 'test'

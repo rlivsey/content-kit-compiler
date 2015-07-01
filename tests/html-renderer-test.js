@@ -1,4 +1,4 @@
-/* global QUnit, test, ok, equal, deepEqual */
+/* global QUnit, test, equal */
 QUnit.module('HTMLRenderer');
 
 import {
