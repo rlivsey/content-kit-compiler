@@ -4,12 +4,26 @@ var testTreeBuilder = require('./broccoli/test-tree-builder');
 
 var buildOptions = {
   packageName: require('./package.json').name,
-  src: './src',
-  vendoredModules: ['content-kit-utils']
+  libDirName: 'src',
+  vendoredModules: [
+    {
+      name: 'content-kit-utils',
+      options: {
+        libDirName: 'src'
+      }
+    }
+  ]
 };
 
+var amdTree = builder.build('amd', buildOptions),
+    commonjsTree = builder.build('commonjs', buildOptions);
+
+buildOptions.isGlobal = true;
+var globalTree = builder.build('global', buildOptions);
+
 module.exports = mergeTrees([
-  builder.buildAMD(buildOptions),
-  builder.buildCJS(buildOptions),
+  amdTree,
+  globalTree,
+  commonjsTree,
   testTreeBuilder.build()
 ]);

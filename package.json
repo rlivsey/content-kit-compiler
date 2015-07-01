@@ -3,12 +3,11 @@
   "version": "0.3.1",
   "description": "Parses and renders content to and from the JSON model that backs ContentKit's WYSIWYG Editor",
   "repository": "https://github.com/bustlelabs/content-kit-compiler",
-  "main": "dist/content-kit-compiler/index.js",
+  "main": "dist/commonjs/content-kit-compiler/index.js",
   "scripts": {
     "test": "testem ci",
     "build": "rm -rf dist && broccoli build dist",
-    "prepublish": "./scripts/build-if-necessary.sh",
-    "serve": "brocolli serve"
+    "serve": "broccoli serve"
   },
   "keywords": [
     "html",
@@ -28,13 +27,14 @@
     "broccoli-concat": "0.0.13",
     "broccoli-funnel": "^0.2.3",
     "broccoli-merge-trees": "^0.2.1",
-    "broccoli-multi-builder": "^0.1.0",
+    "broccoli-multi-builder": "^0.2.2",
     "content-kit-utils": "^0.2.0",
     "esperanto": "^0.6.31",
     "gulp": "^3.8.11",
     "gulp-file": "^0.2.0",
     "gulp-jshint": "^1.10.0",
     "gulp-qunit": "^1.2.1",
+    "loader.js": "^3.2.0",
     "qunitjs": "^1.18.0",
     "testem": "^0.8.4"
   }

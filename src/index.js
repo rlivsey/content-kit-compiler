@@ -32,4 +32,8 @@ export {
   doc
 };
 
+export function registerGlobal(window) {
+  window.ContentKitCompiler = ContentKitCompiler;
+}
+
 export default ContentKitCompiler;
