@@ -7,6 +7,16 @@ var pkg = require('../package.json');
 var packageName = pkg.name;
 var outputFileName = packageName + '-tests.amd.js';
 
+var path = require('path');
+
+function loaderTree() {
+  var loaderPath = path.dirname(require.resolve('loader.js'));
+  return funnel(loaderPath, {
+    include: ['loader.js'],
+    destDir: '/tests/loader.js'
+  });
+}
+
 function buildTestTree() {
   var testJSTree = funnel('./tests', {
     include: ['**/*.js'],
@@ -44,6 +54,7 @@ function buildTestTree() {
   });
 
   var testTree = mergeTrees([
+    loaderTree(),
     testJSTree,
     testExtTree,
     testHTMLTree
