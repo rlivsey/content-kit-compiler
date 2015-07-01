@@ -71,7 +71,7 @@ function parseMarkups(section, postBuilder, topNode) {
       if (currentNode === topNode) {
         break;
       } else {
-        currentNode = currentNode.nextSibling
+        currentNode = currentNode.nextSibling;
         if (currentNode === topNode) {
           break;
         }

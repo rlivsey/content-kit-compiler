@@ -1,4 +1,4 @@
-/* global QUnit, test, ok, equal, deepEqual */
+/* global QUnit, test, equal, deepEqual */
 QUnit.module('HTMLParser');
 
 import {
@@ -250,7 +250,7 @@ test('markup: whitespace', function() {
   equal ( parsed.length, 1 );
   equal ( parsed[0].value, 'Item 1 Item 2 Item 3' );
 
-  var markup = parsed[0].markup
+  var markup = parsed[0].markup;
   equal ( markup.length, 6);
   equal ( markup[0].type, Type.LIST_ITEM.id );
   equal ( markup[0].start, 0 );
