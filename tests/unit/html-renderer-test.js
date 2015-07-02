@@ -4,10 +4,13 @@ QUnit.module('HTMLRenderer');
 import {
   Compiler,
   Type,
-  doc
+  doc,
+  HTMLParser
 } from 'content-kit-compiler';
 
-var compiler = new Compiler();
+var compiler = new Compiler({
+  parser: new HTMLParser()
+});
 
 test('render', function() {
   var input = '<p>This is <em>italic</em>, this is <strong>bold</strong>, this is <em><strong>both styles</strong></em></p>';

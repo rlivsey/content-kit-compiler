@@ -3,10 +3,13 @@ QUnit.module('HTMLParser');
 
 import {
   Compiler,
-  Type
+  Type,
+  HTMLParser
 } from 'content-kit-compiler';
 
-var compiler = new Compiler();
+var compiler = new Compiler({
+  parser: new HTMLParser()
+});
 
 test('properly handle empty content', function() {
   var parsed = compiler.parse();
