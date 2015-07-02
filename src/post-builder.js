@@ -1,7 +1,7 @@
 const MARKUP_SECTION = 1;
 
 var builder = {
-  generateSection: function(tagName, attributes) {
+  generateSection: function(tagName, attributes, isGenerated) {
     var section = {
       type: MARKUP_SECTION,
       tagName: tagName,
@@ -9,6 +9,9 @@ var builder = {
     };
     if (attributes && attributes.length) {
       section.attributes = attributes;
+    }
+    if (isGenerated) {
+      section.isGenerated = !!isGenerated;
     }
     return section;
   },

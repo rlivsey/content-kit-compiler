@@ -72,6 +72,7 @@ test('textnode adjacent to p tag becomes section', (assert) => {
       }, {
         type: MARKUP_SECTION,
         tagName: 'P',
+        isGenerated: true,
         markups: [{
           open: [],
           close: 0,
@@ -105,6 +106,7 @@ test('strong tag (stray markup) without a block should create a block', (assert)
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
+      isGenerated: true,
       markups: [{
         open: [{
           tagName: 'STRONG'
@@ -123,6 +125,7 @@ test('strong tag with inner em (stray markup) without a block should create a bl
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
+      isGenerated: true,
       markups: [{
         open: [{
           tagName: 'STRONG'
@@ -151,6 +154,7 @@ test('stray text (stray markup) should create a block', (assert) => {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
+      isGenerated: true,
       markups: [{
         open: [],
         close: 0,
@@ -166,6 +170,7 @@ test('text node, strong tag, text node (stray markup) without a block should cre
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
+      isGenerated: true,
       markups: [{
         open: [],
         close: 0,
@@ -191,6 +196,7 @@ test('italic tag (stray markup) without a block should create a block', (assert)
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
+      isGenerated: true,
       markups: [{
         open: [{
           tagName: 'EM'
@@ -208,6 +214,7 @@ test('u tag (stray markup) without a block should create a block', (assert) => {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
+      isGenerated: true,
       markups: [{
         open: [{
           tagName: 'U'
@@ -221,11 +228,12 @@ test('u tag (stray markup) without a block should create a block', (assert) => {
 
 test('a tag (stray markup) without a block should create a block', (assert) => {
   var url = "http://test.com";
-  const post = parser.parse(buildDOM('<a href="'+url+'">text</u>'));
+  const post = parser.parse(buildDOM('<a href="'+url+'">text</a>'));
   assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
+      isGenerated: true,
       markups: [{
         open: [{
           tagName: 'A',
@@ -244,6 +252,7 @@ test('markup: break', (assert) => {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
+      isGenerated: true,
       markups: [{
         open: [],
         close: 0,
@@ -269,6 +278,7 @@ test('sub tag (stray markup) without a block should create a block', (assert) =>
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
+      isGenerated: true,
       markups: [{
         open: [],
         close: 0,
@@ -290,6 +300,7 @@ test('sup tag (stray markup) without a block should create a block', (assert) =>
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
+      isGenerated: true,
       markups: [{
         open: [],
         close: 0,

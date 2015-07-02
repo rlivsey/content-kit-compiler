@@ -9,7 +9,7 @@ const MARKUP_SECTION_TAG_NAMES = ['P', 'H3', 'H2', 'H1', 'BLOCKQUOTE', 'UL', 'IM
 const ALLOWED_ATTRIBUTES = ['href', 'rel', 'src'];
 
 function isEmptyTextNode(node) {
-  return trim(node.textContent) === '';
+  return node.nodeType === TEXT_NODE && trim(node.textContent) === '';
 }
 
 // FIXME: should probably always return an array
@@ -86,48 +86,64 @@ function parseMarkups(section, postBuilder, topNode) {
 }
 
 function NewHTMLParser() {
+  this.postBuilder = generateBuilder();
 }
 
 NewHTMLParser.prototype = {
+  parseSection: function(previousSection, sectionElement) {
+    var postBuilder = this.postBuilder;
+    var section;
+    switch(sectionElement.nodeType) {
+    case ELEMENT_NODE:
+      var tagName = sectionElement.tagName;
+      // <p> <h2>, etc
+      if (MARKUP_SECTION_TAG_NAMES.indexOf(tagName) !== -1) {
+        section = postBuilder.generateSection(tagName, readAttributes(sectionElement));
+        var node = sectionElement.firstChild;
+        while (node) {
+          parseMarkups(section, postBuilder, node);
+          node = node.nextSibling;
+        }
+      // <strong> <b>, etc
+      } else {
+        if (previousSection && previousSection.isGenerated) {
+          section = previousSection;
+        } else {
+          section = postBuilder.generateSection('P', {}, true);
+        }
+        parseMarkups(section, postBuilder, sectionElement);
+      }
+      break;
+    case TEXT_NODE:
+      if (previousSection && previousSection.isGenerated) {
+        section = previousSection;
+      } else {
+        section = postBuilder.generateSection('P', {}, true);
+      }
+      parseMarkups(section, postBuilder, sectionElement);
+      break;
+    }
+    return section;
+  },
   parse: function(postElement) {
     var post = {
       sections: []
     };
-    var postBuilder = generateBuilder();
-    var i, l, section, sectionElement;
+    var postBuilder = this.postBuilder;
+    var i, l, section, previousSection, sectionElement;
+    // FIXME: Instead of storing isGenerated on sections, and passing
+    // the previous section to the parser, we could instead do a two-pass
+    // parse. The first pass identifies sections and gathers a list of
+    // dom nodes that can be parsed for markers, the second pass parses
+    // for markers.
     for (i=0, l=postElement.childNodes.length;i<l;i++) {
       sectionElement = postElement.childNodes[i];
-      switch(sectionElement.nodeType) {
-      case ELEMENT_NODE:
-        var tagName = sectionElement.tagName;
-        if (MARKUP_SECTION_TAG_NAMES.indexOf(tagName) !== -1) {
-          section = postBuilder.generateSection(tagName, readAttributes(sectionElement));
-          var node = sectionElement.firstChild;
-          while (node) {
-            parseMarkups(section, postBuilder, node);
-            node = node.nextSibling;
-          }
+      if (!isEmptyTextNode(sectionElement)) {
+        section = this.parseSection(previousSection, sectionElement);
+        if (section !== previousSection) {
           post.sections.push(section);
-          section = null;
-        } else {
-          if (!section) {
-            section = postBuilder.generateSection('P');
-            post.sections.push(section);
-          }
-          parseMarkups(section, postBuilder, sectionElement);
+          previousSection = section;
         }
-        break;
-      case TEXT_NODE:
-        if (isEmptyTextNode(sectionElement)) {
-          break;
-        }
-
-        if (!section) {
-          section = postBuilder.generateSection('P');
-          post.sections.push(section);
-        }
-        parseMarkups(section, postBuilder, sectionElement);
-        break;
       }
     }
     return post;
