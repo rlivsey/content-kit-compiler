@@ -1,5 +1,4 @@
 import NewHTMLParser from './parsers/new-html-parser';
-import HTMLRenderer from './renderers/html-renderer';
 import { DefaultBlockTypeSet, DefaultMarkupTypeSet } from './types/default-types';
 import { mergeWithOptions } from 'content-kit-utils';
 
@@ -10,20 +9,19 @@ import { mergeWithOptions } from 'content-kit-utils';
  */
 function Compiler(options) {
   var parser = new NewHTMLParser();
-  var renderer = new HTMLRenderer();
   var defaults = {
-    parser           : parser,
-    renderer         : renderer,
-    blockTypes       : DefaultBlockTypeSet,
-    markupTypes      : DefaultMarkupTypeSet,
-    includeTypeNames : false // Outputs `type_name:'HEADING'` etc. when parsing. Good for debugging.
+    renderer: null,
+    parser,
+    blockTypes:       DefaultBlockTypeSet,
+    markupTypes:      DefaultMarkupTypeSet,
+    // Outputs `type_name:'HEADING'` etc. when parsing. Good
+    // for debugging.
+    includeTypeNames: false
   };
   mergeWithOptions(this, defaults, options);
-
-  // Reference the compiler settings
-  this.parser.blockTypes  = this.renderer.blockTypes  = this.blockTypes;
-  this.parser.markupTypes = this.renderer.markupTypes = this.markupTypes;
-  this.parser.includeTypeNames = this.includeTypeNames;
+  if (!this.renderer) {
+    throw new Error('renderer required');
+  }
 }
 
 /**
@@ -40,8 +38,8 @@ Compiler.prototype.parse = function(input) {
  * @param model
  * @return String
  */
-Compiler.prototype.render = function(model) {
-  return this.renderer.render(model);
+Compiler.prototype.render = function(model, target) {
+  return this.renderer.render(model, target);
 };
 
 /**
