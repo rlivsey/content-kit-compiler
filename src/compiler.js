@@ -76,8 +76,8 @@ Compiler.prototype.registerMarkupType = function(type) {
   return this.markupTypes.addType(type);
 };
 
-Compiler.prototype.parseSection = function(sectionElement) {
-  return this.parser.parseSection(sectionElement);
+Compiler.prototype.parseSection = function(previousSection, sectionElement) {
+  return this.parser.parseSection(previousSection, sectionElement);
 };
 
 export default Compiler;
