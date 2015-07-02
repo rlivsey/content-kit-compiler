@@ -1,5 +1,7 @@
-/* global QUnit, test, deepEqual */
+/* global QUnit */
+
 const MARKUP_SECTION = 1;
+const { test } = QUnit;
 
 function buildDOM(html) {
   var div = document.createElement('div');
@@ -7,24 +9,83 @@ function buildDOM(html) {
   return div;
 }
 
-import ContentKit from 'content-kit-compiler';
+import NewHTMLParser from 'content-kit-compiler/parsers/new-html-parser';
+let parser;
 
-QUnit.module('new HTMLParser');
 
-var parser = new ContentKit.NewHTMLParser();
+QUnit.module('new HTMLParser', {
+  beforeEach() {
+    parser = new NewHTMLParser();
+  },
+  afterEach() {
+    parser = null;
+  }
+});
 
-test('parse empty content', function() {
-  var post = parser.parse(buildDOM(''));
-  deepEqual(
+test('parse empty content', (assert) => {
+  const post = parser.parse(buildDOM(''));
+  assert.deepEqual(
     post,
     { sections: [] }
   );
 });
 
-test('p tag (section markup) should create a block', function() {
-  var post = parser.parse(buildDOM('<p>text</p>'));
+test('blank textnodes are ignored', (assert) => {
+  const post = parser.parse(buildDOM('<p>first line</p>\n<p>second line</p>'));
+  assert.deepEqual(
+    post,
+    {
+      sections: [{
+        type: MARKUP_SECTION,
+        tagName: 'P',
+        markups: [{
+          open: [],
+          close: 0,
+          value: 'first line'
+        }]
+      }, {
+        type: MARKUP_SECTION,
+        tagName: 'P',
+        markups: [{
+          open: [],
+          close: 0,
+          value: 'second line'
+        }]
+      }]
+    }
+  );
+});
 
-  deepEqual( post, {
+test('textnode adjacent to p tag becomes section', (assert) => {
+  const post = parser.parse(buildDOM('<p>first line</p>second line'));
+  assert.deepEqual(
+    post,
+    {
+      sections: [{
+        type: MARKUP_SECTION,
+        tagName: 'P',
+        markups: [{
+          open: [],
+          close: 0,
+          value: 'first line'
+        }]
+      }, {
+        type: MARKUP_SECTION,
+        tagName: 'P',
+        markups: [{
+          open: [],
+          close: 0,
+          value: 'second line'
+        }]
+      }]
+    }
+  );
+});
+
+test('p tag (section markup) should create a block', (assert) => {
+  const post = parser.parse(buildDOM('<p>text</p>'));
+
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
@@ -37,10 +98,10 @@ test('p tag (section markup) should create a block', function() {
   });
 });
 
-test('strong tag (stray markup) without a block should create a block', function() {
-  var post = parser.parse(buildDOM('<strong>text</strong>'));
+test('strong tag (stray markup) without a block should create a block', (assert) => {
+  const post = parser.parse(buildDOM('<strong>text</strong>'));
 
-  deepEqual( post, {
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
@@ -55,9 +116,10 @@ test('strong tag (stray markup) without a block should create a block', function
   });
 });
 
-test('strong tag with inner em (stray markup) without a block should create a block', function() {
-  var post = parser.parse(buildDOM('<strong><em>stray</em> markup tags</strong>.'));
-  deepEqual( post, {
+test('strong tag with inner em (stray markup) without a block should create a block', (assert) => {
+  const post = parser.parse(buildDOM('<strong><em>stray</em> markup tags</strong>.'));
+
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
@@ -82,10 +144,10 @@ test('strong tag with inner em (stray markup) without a block should create a bl
   });
 });
 
-test('stray text (stray markup) should create a block', function() {
-  var post = parser.parse(buildDOM('text'));
+test('stray text (stray markup) should create a block', (assert) => {
+  const post = parser.parse(buildDOM('text'));
 
-  deepEqual( post, {
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
@@ -98,9 +160,9 @@ test('stray text (stray markup) should create a block', function() {
   });
 });
 
-test('text node, strong tag, text node (stray markup) without a block should create a block', function() {
-  var post = parser.parse(buildDOM('start <strong>bold</strong> end'));
-  deepEqual( post, {
+test('text node, strong tag, text node (stray markup) without a block should create a block', (assert) => {
+  const post = parser.parse(buildDOM('start <strong>bold</strong> end'));
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
@@ -123,9 +185,9 @@ test('text node, strong tag, text node (stray markup) without a block should cre
   });
 });
 
-test('italic tag (stray markup) without a block should create a block', function() {
-  var post = parser.parse(buildDOM('<em>text</em>'));
-  deepEqual( post, {
+test('italic tag (stray markup) without a block should create a block', (assert) => {
+  const post = parser.parse(buildDOM('<em>text</em>'));
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
@@ -140,9 +202,9 @@ test('italic tag (stray markup) without a block should create a block', function
   });
 });
 
-test('u tag (stray markup) without a block should create a block', function() {
-  var post = parser.parse(buildDOM('<u>text</u>'));
-  deepEqual( post, {
+test('u tag (stray markup) without a block should create a block', (assert) => {
+  const post = parser.parse(buildDOM('<u>text</u>'));
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
@@ -157,10 +219,10 @@ test('u tag (stray markup) without a block should create a block', function() {
   });
 });
 
-test('a tag (stray markup) without a block should create a block', function() {
+test('a tag (stray markup) without a block should create a block', (assert) => {
   var url = "http://test.com";
-  var post = parser.parse(buildDOM('<a href="'+url+'">text</u>'));
-  deepEqual( post, {
+  const post = parser.parse(buildDOM('<a href="'+url+'">text</u>'));
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
@@ -176,9 +238,9 @@ test('a tag (stray markup) without a block should create a block', function() {
   });
 });
 
-test('markup: break', function() {
-  var post = parser.parse(buildDOM('line <br/>break'));
-  deepEqual( post, {
+test('markup: break', (assert) => {
+  const post = parser.parse(buildDOM('line <br/>break'));
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
@@ -201,9 +263,9 @@ test('markup: break', function() {
   });
 });
 
-test('sub tag (stray markup) without a block should create a block', function() {
-  var post = parser.parse(buildDOM('footnote<sub>1</sub>'));
-  deepEqual( post, {
+test('sub tag (stray markup) without a block should create a block', (assert) => {
+  const post = parser.parse(buildDOM('footnote<sub>1</sub>'));
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
@@ -222,9 +284,9 @@ test('sub tag (stray markup) without a block should create a block', function() 
   });
 });
 
-test('sup tag (stray markup) without a block should create a block', function() {
-  var post = parser.parse(buildDOM('e=mc<sup>2</sup>'));
-  deepEqual( post, {
+test('sup tag (stray markup) without a block should create a block', (assert) => {
+  const post = parser.parse(buildDOM('e=mc<sup>2</sup>'));
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
@@ -243,9 +305,9 @@ test('sup tag (stray markup) without a block should create a block', function() 
   });
 });
 
-test('list (stray markup) without a block should create a block', function() {
-  var post = parser.parse(buildDOM('<ul><li>Item 1</li><li>Item 2</li></ul>'));
-  deepEqual( post, {
+test('list (stray markup) without a block should create a block', (assert) => {
+  const post = parser.parse(buildDOM('<ul><li>Item 1</li><li>Item 2</li></ul>'));
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'UL',
@@ -266,9 +328,9 @@ test('list (stray markup) without a block should create a block', function() {
   });
 });
 
-test('nested tags (section markup) should create a block', function() {
-  var post = parser.parse(buildDOM('<p><em><strong>Double.</strong></em> <strong><em>Double staggered</em> start.</strong> <strong>Double <em>staggered end.</em></strong> <strong>Double <em>staggered</em> middle.</strong></p>'));
-  deepEqual( post, {
+test('nested tags (section markup) should create a block', (assert) => {
+  const post = parser.parse(buildDOM('<p><em><strong>Double.</strong></em> <strong><em>Double staggered</em> start.</strong> <strong>Double <em>staggered end.</em></strong> <strong>Double <em>staggered</em> middle.</strong></p>'));
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
@@ -340,7 +402,7 @@ test('nested tags (section markup) should create a block', function() {
 /*
  * FIXME: Update these tests to use the renderer
  *
-test('markup: nested/unsupported tags', function() {
+test('markup: nested/unsupported tags', (assert) => {
   var parsed = compiler.parse('<p>Test one <strong>two</strong> <em><strong>three</strong></em> <span>four</span> <span><strong>five</strong></span> <strong><span>six</span></strong> <strong></strong><span></span><strong><span></span></strong><span><strong></strong></span>seven</p>');
 
   equal ( parsed.length, 1 );
@@ -369,12 +431,12 @@ test('markup: nested/unsupported tags', function() {
   equal ( parsed[0].markup[4].end, 32 );
 });
 
-test('markup: preserves spaces in empty tags', function() {
+test('markup: preserves spaces in empty tags', (assert) => {
   var rendered = compiler.rerender('<p>Testing a<span> </span><em>space</em></p>');
   equal ( rendered, '<p>Testing a <em>space</em></p>');
 });
 
-test('markup: self-closing tags with nesting', function() {
+test('markup: self-closing tags with nesting', (assert) => {
   var input = '<p><strong>Blah <br/>blah</strong> <br/>blah</p>';
   var parsed = compiler.parse(input);
 
@@ -394,7 +456,7 @@ test('markup: self-closing tags with nesting', function() {
   equal ( parsed[0].markup[2].end, 10 );
 });
 
-test('markup: whitespace', function() {
+test('markup: whitespace', (assert) => {
   var parsed = compiler.parse('<ul>   ' +
                               '\t <li>Item <em>1</em></li> &nbsp;\n' +
                               '   <li><strong>Item 2</strong></li>\r\n &nbsp; ' +
@@ -425,7 +487,7 @@ test('markup: whitespace', function() {
   equal ( markup[5].end, 18 );
 });
 
-test('markup: consistent order', function() {
+test('markup: consistent order', (assert) => {
   var correctlyOrdered = compiler.parse('<p><a><strong>text</strong></a></p>');
   var incorrectlyOrdered = compiler.parse('<p><strong><a>text</a></strong></p>');
 
@@ -433,12 +495,12 @@ test('markup: consistent order', function() {
 });
 */
 
-test('attributes', function() {
+test('attributes', (assert) => {
   var href = 'http://google.com';
   var rel = 'nofollow';
-  var post = parser.parse(buildDOM('<p><a href="'+href+'" rel="'+rel+'">Link to google.com</a></p>'));
+  const post = parser.parse(buildDOM('<p><a href="'+href+'" rel="'+rel+'">Link to google.com</a></p>'));
 
-  deepEqual( post, {
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
@@ -454,10 +516,10 @@ test('attributes', function() {
   });
 });
 
-test('attributes filters out inline styles and classes', function() {
-  var post = parser.parse(buildDOM('<p class="test" style="color:red;"><b style="line-height:11px">test</b></p>'));
+test('attributes filters out inline styles and classes', (assert) => {
+  const post = parser.parse(buildDOM('<p class="test" style="color:red;"><b style="line-height:11px">test</b></p>'));
 
-  deepEqual( post, {
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
@@ -472,9 +534,9 @@ test('attributes filters out inline styles and classes', function() {
   });
 });
 
-test('blocks: paragraph', function() {
-  var post = parser.parse(buildDOM('<p>TEXT</p>'));
-  deepEqual( post, {
+test('blocks: paragraph', (assert) => {
+  const post = parser.parse(buildDOM('<p>TEXT</p>'));
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',
@@ -487,9 +549,9 @@ test('blocks: paragraph', function() {
   });
 });
 
-test('blocks: heading', function() {
-  var post = parser.parse(buildDOM('<h2>TEXT</h2>'));
-  deepEqual( post, {
+test('blocks: heading', (assert) => {
+  const post = parser.parse(buildDOM('<h2>TEXT</h2>'));
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'H2',
@@ -502,9 +564,9 @@ test('blocks: heading', function() {
   });
 });
 
-test('blocks: subheading', function() {
-  var post = parser.parse(buildDOM('<h3>TEXT</h3>'));
-  deepEqual( post, {
+test('blocks: subheading', (assert) => {
+  const post = parser.parse(buildDOM('<h3>TEXT</h3>'));
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'H3',
@@ -517,10 +579,10 @@ test('blocks: subheading', function() {
   });
 });
 
-test('blocks: image', function() {
+test('blocks: image', (assert) => {
   var url = "http://domain.com/text.png";
-  var post = parser.parse(buildDOM('<img src="'+url+'" />'));
-  deepEqual( post, {
+  const post = parser.parse(buildDOM('<img src="'+url+'" />'));
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'IMG',
@@ -530,9 +592,9 @@ test('blocks: image', function() {
   });
 });
 
-test('blocks: quote', function() {
-  var post = parser.parse(buildDOM('<blockquote>quote</blockquote>'));
-  deepEqual( post, {
+test('blocks: quote', (assert) => {
+  const post = parser.parse(buildDOM('<blockquote>quote</blockquote>'));
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'BLOCKQUOTE',
@@ -545,9 +607,9 @@ test('blocks: quote', function() {
   });
 });
 
-test('blocks: list', function() {
-  var post = parser.parse(buildDOM('<ul><li>Item 1</li> <li>Item 2</li></ul>'));
-  deepEqual( post, {
+test('blocks: list', (assert) => {
+  const post = parser.parse(buildDOM('<ul><li>Item 1</li> <li>Item 2</li></ul>'));
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'UL',
@@ -572,9 +634,9 @@ test('blocks: list', function() {
   });
 });
 
-test('blocks: ordered list', function() {
-  var post = parser.parse(buildDOM('<ol><li>Item 1</li> <li>Item 2</li></ol>'));
-  deepEqual( post, {
+test('blocks: ordered list', (assert) => {
+  const post = parser.parse(buildDOM('<ol><li>Item 1</li> <li>Item 2</li></ol>'));
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'OL',
@@ -600,7 +662,7 @@ test('blocks: ordered list', function() {
 });
 
 /*
-test('blocks: mixed', function() {
+test('blocks: mixed', (assert) => {
   var input = '<h2>The Title</h2><h3>The Subtitle</h3><p>TEXT <strong>1</strong></p><p>TEXT <strong><em>2</em></strong></p><p>TEXT with a <a href="http://google.com/">link</a>.</p><blockquote>Quote</blockquote>';
   var parsed = compiler.parse(input);
 
@@ -614,11 +676,11 @@ test('blocks: mixed', function() {
 });
 */
 
-test('blocks: self-closing', function() {
+test('blocks: self-closing', (assert) => {
   var url = 'http://domain.com/test.png';
-  var post = parser.parse(buildDOM('<img src="'+url+'"/><p>Line<br/>break</p>'));
+  const post = parser.parse(buildDOM('<img src="'+url+'"/><p>Line<br/>break</p>'));
 
-  deepEqual( post, {
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'IMG',
@@ -646,9 +708,9 @@ test('blocks: self-closing', function() {
   });
 });
 
-test('converts tags to mapped values', function() {
-  var post = parser.parse(buildDOM('<p><b><i>Converts</i> tags</b>.</p>'));
-  deepEqual( post, {
+test('converts tags to mapped values', (assert) => {
+  const post = parser.parse(buildDOM('<p><b><i>Converts</i> tags</b>.</p>'));
+  assert.deepEqual( post, {
     sections: [{
       type: MARKUP_SECTION,
       tagName: 'P',

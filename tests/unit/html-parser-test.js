@@ -8,7 +8,7 @@ import {
 
 var compiler = new Compiler();
 
-test('propertly handle empty content', function() {
+test('properly handle empty content', function() {
   var parsed = compiler.parse();
   deepEqual (parsed, []);
 

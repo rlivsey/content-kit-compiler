@@ -1,4 +1,5 @@
 import { generateBuilder } from '../post-builder';
+import { trim } from 'content-kit-utils';
 
 const ELEMENT_NODE = 1;
 const TEXT_NODE = 3;
@@ -6,6 +7,10 @@ const TEXT_NODE = 3;
 const MARKUP_SECTION_TAG_NAMES = ['P', 'H3', 'H2', 'H1', 'BLOCKQUOTE', 'UL', 'IMG', 'OL'];
 
 const ALLOWED_ATTRIBUTES = ['href', 'rel', 'src'];
+
+function isEmptyTextNode(node) {
+  return trim(node.textContent) === '';
+}
 
 // FIXME: should probably always return an array
 function readAttributes(node) {
@@ -113,6 +118,10 @@ NewHTMLParser.prototype = {
         }
         break;
       case TEXT_NODE:
+        if (isEmptyTextNode(sectionElement)) {
+          break;
+        }
+
         if (!section) {
           section = postBuilder.generateSection('P');
           post.sections.push(section);
@@ -124,6 +133,5 @@ NewHTMLParser.prototype = {
     return post;
   }
 };
-
 
 export default NewHTMLParser;

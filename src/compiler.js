@@ -1,4 +1,4 @@
-import HTMLParser from './parsers/html-parser';
+import NewHTMLParser from './parsers/new-html-parser';
 import HTMLRenderer from './renderers/html-renderer';
 import { DefaultBlockTypeSet, DefaultMarkupTypeSet } from './types/default-types';
 import { mergeWithOptions } from 'content-kit-utils';
@@ -9,7 +9,7 @@ import { mergeWithOptions } from 'content-kit-utils';
  * @param options
  */
 function Compiler(options) {
-  var parser = new HTMLParser();
+  var parser = new NewHTMLParser();
   var renderer = new HTMLRenderer();
   var defaults = {
     parser           : parser,
