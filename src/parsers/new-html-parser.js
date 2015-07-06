@@ -129,7 +129,6 @@ NewHTMLParser.prototype = {
     var post = {
       sections: []
     };
-    var postBuilder = this.postBuilder;
     var i, l, section, previousSection, sectionElement;
     // FIXME: Instead of storing isGenerated on sections, and passing
     // the previous section to the parser, we could instead do a two-pass
