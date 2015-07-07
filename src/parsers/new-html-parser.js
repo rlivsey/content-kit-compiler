@@ -60,7 +60,7 @@ function parseMarkups(section, postBuilder, topNode) {
     }
 
     if (currentNode.firstChild) {
-      if (text !== null) {
+      if (isValidMarkupElement(currentNode) && text !== null) {
         section.markups.push(postBuilder.generateMarkup(markupTypes, 0, text));
         markupTypes = [];
         text = null;
@@ -72,7 +72,7 @@ function parseMarkups(section, postBuilder, topNode) {
         break;
       } else {
         currentNode = currentNode.nextSibling;
-        if (currentNode.nodeType === ELEMENT_NODE && text !== null) {
+        if (currentNode.nodeType === ELEMENT_NODE && isValidMarkupElement(currentNode) && text !== null) {
           section.markups.push(postBuilder.generateMarkup(markupTypes, 0, text));
           markupTypes = [];
           text = null;
@@ -81,12 +81,16 @@ function parseMarkups(section, postBuilder, topNode) {
     } else {
       var toClose = 0;
       while (currentNode && !currentNode.nextSibling && currentNode !== topNode) {
-        toClose++;
+        if (isValidMarkupElement(currentNode)) {
+          toClose++;
+        }
         currentNode = currentNode.parentNode;
       }
-        section.markups.push(postBuilder.generateMarkup(markupTypes, toClose, text));
-        markupTypes = [];
-        text = null;
+
+      section.markups.push(postBuilder.generateMarkup(markupTypes, toClose, text));
+      markupTypes = [];
+      text = null;
+
       if (currentNode === topNode) {
         break;
       } else {
