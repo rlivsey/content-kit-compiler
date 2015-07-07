@@ -1,16 +1,14 @@
 import Post from "./models/post";
 
-const MARKUP_SECTION = 1;
-
 var builder = {
   generatePost() {
     return new Post();
   },
   generateSection(tagName, attributes, isGenerated) {
     var section = {
-      type: MARKUP_SECTION,
+      type: 'markupSection',
       tagName: tagName,
-      markups: []
+      markers: []
     };
     if (attributes && attributes.length) {
       section.attributes = attributes;
@@ -20,33 +18,36 @@ var builder = {
     }
     return section;
   },
-  generateMarkup: function(open, close, value) {
+  generateMarker: function(open, close, value) {
     return {
+      type: 'marker',
       open: open,
       close: close,
       value: value
     };
   },
-  generateMarkupType: function(tagName, attributes) {
+  generateMarkerType: function(tagName, attributes) {
     if (attributes) {
       // FIXME: This could also be cached
       return {
+        type: 'markerType',
         tagName: tagName,
         attributes: attributes
       };
     }
-    var markupType = this._markupTypeCache[tagName];
-    if (!markupType) {
-      this._markupTypeCache[tagName] = markupType = {
+    var markerType = this._markerTypeCache[tagName];
+    if (!markerType) {
+      this._markerTypeCache[tagName] = markerType = {
+        type: 'markerType',
         tagName: tagName
       };
     }
-    return markupType;
+    return markerType;
   }
 };
 
 function reset(builder){
-  builder._markupTypeCache = {};
+  builder._markerTypeCache = {};
 }
 
 export function generateBuilder(){

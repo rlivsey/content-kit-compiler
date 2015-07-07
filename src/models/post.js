@@ -3,6 +3,7 @@ import ElementMap from "../utils/element-map";
 // FIXME: making sections a linked-list would greatly improve this
 export default class Post {
   constructor() {
+    this.type = 'post';
     this.sections = [];
     this.sectionElementMap = new ElementMap();
   }

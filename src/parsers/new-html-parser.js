@@ -31,7 +31,7 @@ function readAttributes(node) {
   return attributes;
 }
 
-const VALID_MARKUP_ELEMENTS = [
+const VALID_MARKER_ELEMENTS = [
   'B',
   'I',
   'STRONG',
@@ -39,19 +39,19 @@ const VALID_MARKUP_ELEMENTS = [
   'A'
 ];
 
-function isValidMarkupElement(element) {
-  return VALID_MARKUP_ELEMENTS.indexOf(element.tagName) !== -1;
+function isValidMarkerElement(element) {
+  return VALID_MARKER_ELEMENTS.indexOf(element.tagName) !== -1;
 }
 
-function parseMarkups(section, postBuilder, topNode) {
-  var markupTypes = [];
+function parseMarkers(section, postBuilder, topNode) {
+  var markerTypes = [];
   var text = null;
   var currentNode = topNode;
   while (currentNode) {
     switch(currentNode.nodeType) {
     case ELEMENT_NODE:
-      if (isValidMarkupElement(currentNode)) {
-        markupTypes.push(postBuilder.generateMarkupType(currentNode.tagName, readAttributes(currentNode)));
+      if (isValidMarkerElement(currentNode)) {
+        markerTypes.push(postBuilder.generateMarkerType(currentNode.tagName, readAttributes(currentNode)));
       }
       break;
     case TEXT_NODE:
@@ -60,35 +60,35 @@ function parseMarkups(section, postBuilder, topNode) {
     }
 
     if (currentNode.firstChild) {
-      if (isValidMarkupElement(currentNode) && text !== null) {
-        section.markups.push(postBuilder.generateMarkup(markupTypes, 0, text));
-        markupTypes = [];
+      if (isValidMarkerElement(currentNode) && text !== null) {
+        section.markers.push(postBuilder.generateMarker(markerTypes, 0, text));
+        markerTypes = [];
         text = null;
       }
       currentNode = currentNode.firstChild;
     } else if (currentNode.nextSibling) {
       if (currentNode === topNode) {
-        section.markups.push(postBuilder.generateMarkup(markupTypes, markupTypes.length, text));
+        section.markers.push(postBuilder.generateMarker(markerTypes, markerTypes.length, text));
         break;
       } else {
         currentNode = currentNode.nextSibling;
-        if (currentNode.nodeType === ELEMENT_NODE && isValidMarkupElement(currentNode) && text !== null) {
-          section.markups.push(postBuilder.generateMarkup(markupTypes, 0, text));
-          markupTypes = [];
+        if (currentNode.nodeType === ELEMENT_NODE && isValidMarkerElement(currentNode) && text !== null) {
+          section.markers.push(postBuilder.generateMarker(markerTypes, 0, text));
+          markerTypes = [];
           text = null;
         }
       }
     } else {
       var toClose = 0;
       while (currentNode && !currentNode.nextSibling && currentNode !== topNode) {
-        if (isValidMarkupElement(currentNode)) {
+        currentNode = currentNode.parentNode;
+        if (isValidMarkerElement(currentNode)) {
           toClose++;
         }
-        currentNode = currentNode.parentNode;
       }
 
-      section.markups.push(postBuilder.generateMarkup(markupTypes, toClose, text));
-      markupTypes = [];
+      section.markers.push(postBuilder.generateMarker(markerTypes, toClose, text));
+      markerTypes = [];
       text = null;
 
       if (currentNode === topNode) {
@@ -119,7 +119,7 @@ NewHTMLParser.prototype = {
         section = postBuilder.generateSection(tagName, readAttributes(sectionElement));
         var node = sectionElement.firstChild;
         while (node) {
-          parseMarkups(section, postBuilder, node);
+          parseMarkers(section, postBuilder, node);
           node = node.nextSibling;
         }
       // <strong> <b>, etc
@@ -129,7 +129,7 @@ NewHTMLParser.prototype = {
         } else {
           section = postBuilder.generateSection('P', {}, true);
         }
-        parseMarkups(section, postBuilder, sectionElement);
+        parseMarkers(section, postBuilder, sectionElement);
       }
       break;
     case TEXT_NODE:
@@ -138,7 +138,7 @@ NewHTMLParser.prototype = {
       } else {
         section = postBuilder.generateSection('P', {}, true);
       }
-      parseMarkups(section, postBuilder, sectionElement);
+      parseMarkers(section, postBuilder, sectionElement);
       break;
     }
     return section;
