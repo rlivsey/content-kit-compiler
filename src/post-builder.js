@@ -1,7 +1,12 @@
+import Post from "./models/post";
+
 const MARKUP_SECTION = 1;
 
 var builder = {
-  generateSection: function(tagName, attributes, isGenerated) {
+  generatePost() {
+    return new Post();
+  },
+  generateSection(tagName, attributes, isGenerated) {
     var section = {
       type: MARKUP_SECTION,
       tagName: tagName,

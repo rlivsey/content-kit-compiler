@@ -126,9 +126,7 @@ NewHTMLParser.prototype = {
     return section;
   },
   parse: function(postElement) {
-    var post = {
-      sections: []
-    };
+    var post = this.postBuilder.generatePost();
     var i, l, section, previousSection, sectionElement;
     // FIXME: Instead of storing isGenerated on sections, and passing
     // the previous section to the parser, we could instead do a two-pass
@@ -140,7 +138,7 @@ NewHTMLParser.prototype = {
       if (!isEmptyTextNode(sectionElement)) {
         section = this.parseSection(previousSection, sectionElement);
         if (section !== previousSection) {
-          post.sections.push(section);
+          post.appendSection(section);
           previousSection = section;
         }
       }

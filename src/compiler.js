@@ -38,8 +38,8 @@ Compiler.prototype.parse = function(input) {
  * @param model
  * @return String
  */
-Compiler.prototype.render = function(model, elementMap, target) {
-  return this.renderer.render(model, elementMap, target);
+Compiler.prototype.render = function(model, target) {
+  return this.renderer.render(model, target);
 };
 
 /**
