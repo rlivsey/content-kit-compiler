@@ -31,6 +31,18 @@ function readAttributes(node) {
   return attributes;
 }
 
+const VALID_MARKUP_ELEMENTS = [
+  'B',
+  'I',
+  'STRONG',
+  'EM',
+  'A'
+];
+
+function isValidMarkupElement(element) {
+  return VALID_MARKUP_ELEMENTS.indexOf(element.tagName) !== -1;
+}
+
 function parseMarkups(section, postBuilder, topNode) {
   var markupTypes = [];
   var text = null;
@@ -38,7 +50,9 @@ function parseMarkups(section, postBuilder, topNode) {
   while (currentNode) {
     switch(currentNode.nodeType) {
     case ELEMENT_NODE:
-      markupTypes.push(postBuilder.generateMarkupType(currentNode.tagName, readAttributes(currentNode)));
+      if (isValidMarkupElement(currentNode)) {
+        markupTypes.push(postBuilder.generateMarkupType(currentNode.tagName, readAttributes(currentNode)));
+      }
       break;
     case TEXT_NODE:
       text = (text || '') + currentNode.textContent;

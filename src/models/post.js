@@ -20,7 +20,7 @@ export default class Post {
     var i, l;
     for (i=0,l=this.sections.length;i<l;i++) {
       if (this.sections[i] === previousSection) {
-        this.sections.splice(i, 0, section);
+        this.sections.splice(i+1, 0, section);
         return;
       }
     }
@@ -31,7 +31,7 @@ export default class Post {
     this.sectionElementMap.set(element, section);
   }
   getSectionElement(section) {
-    return section.element;
+    return section && section.element;
   }
   getElementSection(element) {
     return this.sectionElementMap.get(element);
@@ -41,7 +41,7 @@ export default class Post {
     var i, l;
     for (i=0,l=this.sections.length;i<l;i++) {
       if (this.sections[i] === section) {
-        this.sections.splice(i, 0);
+        this.sections.splice(i, 1);
         return;
       }
     }

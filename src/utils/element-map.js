@@ -8,7 +8,7 @@ class ElementMap {
   set(key, value) {
     let uuid = key._uuid;
     if (!uuid) {
-      key._uuid = uuid = uuidGenerator++;
+      key._uuid = uuid = '' + uuidGenerator++;
     }
     this._map[uuid] = value;
   }
