@@ -6,6 +6,7 @@ import HTMLParser from './parsers/html-parser';
 import HTMLRenderer from './renderers/html-renderer';
 import NewHTMLParser from './parsers/new-html-parser';
 import doc from './parsers/document';
+import MobiledocParser from './parsers/mobiledoc';
 
 /**
  * @namespace ContentKit
@@ -18,7 +19,8 @@ const ContentKitCompiler = {
   Compiler,
   HTMLParser,
   HTMLRenderer,
-  NewHTMLParser
+  NewHTMLParser,
+  MobiledocParser
 };
 
 export {
@@ -29,6 +31,7 @@ export {
   HTMLParser,
   HTMLRenderer,
   NewHTMLParser,
+  MobiledocParser,
   doc
 };
 
