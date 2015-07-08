@@ -2,7 +2,7 @@ import { generateBuilder } from '../post-builder';
 
 /*
  * input mobiledoc: [ markers, elements ]
- * output:
+ * output: Post
  *
  */
 export default class MobiledocParser {

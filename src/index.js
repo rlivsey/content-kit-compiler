@@ -7,6 +7,11 @@ import HTMLRenderer from './renderers/html-renderer';
 import NewHTMLParser from './parsers/new-html-parser';
 import doc from './parsers/document';
 import MobiledocParser from './parsers/mobiledoc';
+import RuntimeDOMRenderer from './runtime/renderers/dom';
+
+const Runtime = {
+  DOMRenderer: RuntimeDOMRenderer
+};
 
 /**
  * @namespace ContentKit
@@ -20,7 +25,8 @@ const ContentKitCompiler = {
   HTMLParser,
   HTMLRenderer,
   NewHTMLParser,
-  MobiledocParser
+  MobiledocParser,
+  Runtime
 };
 
 export {
@@ -32,6 +38,7 @@ export {
   HTMLRenderer,
   NewHTMLParser,
   MobiledocParser,
+  Runtime,
   doc
 };
 
