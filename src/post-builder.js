@@ -18,6 +18,9 @@ var builder = {
     }
     return section;
   },
+  // open: Array
+  // close: Integer
+  // value: String
   generateMarker: function(open, close, value) {
     return {
       type: 'marker',
